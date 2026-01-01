@@ -23,7 +23,11 @@ public class TemporalStability : NetworkBehaviour
     
     [Tooltip("Threshold for critical stability warning (flashing red UI)")]
     [SerializeField] private float criticalThreshold = 25f;
-    
+
+    [Header("Debug Settings")]
+    [SerializeField] private bool verboseLogging = false;
+    [SerializeField] private float logThreshold = 5.0f; // Only log changes >= this amount
+
     /// <summary>
     /// Current temporal stability (0-maxStability). 
     /// FishNet v4 SyncVar - automatically synchronizes from server to all clients.
@@ -35,6 +39,9 @@ public class TemporalStability : NetworkBehaviour
     
     // Track if we've already fired critical warning
     private bool wasCritical = false;
+    
+    // Track last logged value for verbose logging control
+    private float lastLoggedStability = -1f;
     
     // Events for UI and other systems to subscribe to
     public event Action<float, float> OnStabilityUpdated; // (current, max)
@@ -69,14 +76,21 @@ public class TemporalStability : NetworkBehaviour
         // Set initial values on server
         _currentStability.Value = maxStability;
         wasCritical = false;
+        lastLoggedStability = maxStability; // Initialize to prevent first log
         
-        Debug.Log($"[TemporalStability] OnStartServer - Player {Owner.ClientId} initialized on server");
+        if (verboseLogging)
+        {
+            Debug.Log($"[TemporalStability] OnStartServer - Player {Owner.ClientId} initialized on server");
+        }
     }
     
     public override void OnStartClient()
     {
         base.OnStartClient();
-        Debug.Log($"[TemporalStability] OnStartClient - Player {Owner.ClientId} started on client (IsOwner: {IsOwner})");
+        if (verboseLogging)
+        {
+            Debug.Log($"[TemporalStability] OnStartClient - Player {Owner.ClientId} started on client (IsOwner: {IsOwner})");
+        }
     }
     
     /// <summary>
@@ -95,7 +109,12 @@ public class TemporalStability : NetworkBehaviour
         // Clamp to valid range [0, maxStability]
         _currentStability.Value = Mathf.Clamp(_currentStability.Value + amount, 0f, maxStability);
         
-        Debug.Log($"[TemporalStability] ModifyStability - Player {Owner.ClientId}: {oldValue:F1} + {amount:F1} = {_currentStability.Value:F1}");
+        // Only log if verbose logging is enabled AND change is significant
+        if (verboseLogging && (lastLoggedStability < 0 || Mathf.Abs(_currentStability.Value - lastLoggedStability) >= logThreshold))
+        {
+            Debug.Log($"[TemporalStability] ModifyStability - Player {Owner.ClientId}: {oldValue:F1} + {amount:F1} = {_currentStability.Value:F1}");
+            lastLoggedStability = _currentStability.Value;
+        }
         
         // Check for depletion
         if (_currentStability.Value <= 0f)
@@ -113,6 +132,7 @@ public class TemporalStability : NetworkBehaviour
     public void SetStability(float value)
     {
         _currentStability.Value = Mathf.Clamp(value, 0f, maxStability);
+        lastLoggedStability = _currentStability.Value; // Update last logged value
     }
     
     /// <summary>
@@ -121,16 +141,27 @@ public class TemporalStability : NetworkBehaviour
     /// </summary>
     private void OnStabilityChanged(float previousValue, float newValue, bool asServer)
     {
-        Debug.Log($"[TemporalStability] OnStabilityChanged - Player {Owner.ClientId}, IsOwner: {IsOwner}, asServer: {asServer}, {previousValue:F1}% → {newValue:F1}%");
+        // Only log if verbose logging is enabled AND change is significant
+        if (verboseLogging && (lastLoggedStability < 0 || Mathf.Abs(newValue - lastLoggedStability) >= logThreshold))
+        {
+            Debug.Log($"[TemporalStability] OnStabilityChanged - Player {Owner.ClientId}, IsOwner: {IsOwner}, asServer: {asServer}, {previousValue:F1}% → {newValue:F1}%");
+            lastLoggedStability = newValue;
+        }
         
         // Only process on client (owner) for UI updates
         if (!IsOwner) 
         {
-            Debug.Log($"[TemporalStability] Skipping UI update - not owner (Player {Owner.ClientId})");
+            if (verboseLogging)
+            {
+                Debug.Log($"[TemporalStability] Skipping UI update - not owner (Player {Owner.ClientId})");
+            }
             return;
         }
         
-        Debug.Log($"[TemporalStability] Firing OnStabilityUpdated event for Player {Owner.ClientId}");
+        if (verboseLogging)
+        {
+            Debug.Log($"[TemporalStability] Firing OnStabilityUpdated event for Player {Owner.ClientId}");
+        }
         
         // Notify UI
         OnStabilityUpdated?.Invoke(newValue, maxStability);

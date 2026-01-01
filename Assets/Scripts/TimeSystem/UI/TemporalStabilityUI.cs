@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using FishNet.Object;
 
 /// <summary>
 /// UI controller for displaying temporal stability and timeline state.
@@ -10,11 +11,11 @@ using TMPro;
 /// UPDATED FOR REFACTORED ARCHITECTURE:
 /// - Subscribes to TemporalStability for stability value
 /// - Subscribes to TimelineManager for timeline state
+/// - Uses FishNet OnStartClient() for proper ownership timing
 /// 
 /// Note: Procedural UI extends Unity's Image component, so standard fillAmount works.
-/// This script is non-networked - it just listens to events from networked components.
 /// </summary>
-public class TemporalStabilityUI : MonoBehaviour
+public class TemporalStabilityUI : NetworkBehaviour
 {
     [Header("Component References")]
     [Tooltip("Auto-assigned if not set")]
@@ -38,72 +39,72 @@ public class TemporalStabilityUI : MonoBehaviour
     private bool isCritical = false;
     private float flashTimer = 0f;
     
-    private void Start()
+    /// <summary>
+    /// FishNet callback - called when client initializes this object.
+    /// This is the correct place to check IsOwner and disable UI for non-owned players.
+    /// Reference: https://fish-networking.gitbook.io/docs/tutorials/getting-started/moving-your-player-around
+    /// </summary>
+    public override void OnStartClient()
     {
-        Debug.Log($"[TemporalStabilityUI] Start called on UI instance");
+        base.OnStartClient();
+        
+        Debug.Log($"[TemporalStabilityUI] OnStartClient called, IsOwner: {IsOwner}");
+        
+        // CRITICAL: Disable canvas for non-owned players
+        // This prevents duplicate UIs from stacking in Screen Space - Overlay mode
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas != null && !IsOwner)
+        {
+            canvas.enabled = false;
+            Debug.Log($"[TemporalStabilityUI] Disabled canvas for non-owned player");
+            return; // Exit early - no setup needed for non-owned players
+        }
+        
+        // Only initialize UI for the local player
+        InitializeUI();
+    }
+    
+    /// <summary>
+    /// Initialize UI components and subscribe to events (local player only).
+    /// </summary>
+    private void InitializeUI()
+    {
+        Debug.Log($"[TemporalStabilityUI] Initializing UI for LOCAL player");
         
         // Auto-find components if not assigned
         if (playerStability == null)
         {
             playerStability = GetComponentInParent<TemporalStability>();
-            Debug.Log($"[TemporalStabilityUI] Auto-found TemporalStability: {(playerStability != null ? $"Player {playerStability.Owner?.ClientId}, IsOwner: {playerStability.IsOwner}" : "NULL")}");
-        }
-        else
-        {
-            Debug.Log($"[TemporalStabilityUI] Using assigned TemporalStability: Player {playerStability.Owner?.ClientId}, IsOwner: {playerStability.IsOwner}");
         }
         
         if (timelineManager == null)
         {
             timelineManager = GetComponentInParent<TimelineManager>();
-            Debug.Log($"[TemporalStabilityUI] Auto-found TimelineManager: {(timelineManager != null ? $"Player {timelineManager.Owner?.ClientId}, IsOwner: {timelineManager.IsOwner}" : "NULL")}");
-        }
-        else
-        {
-            Debug.Log($"[TemporalStabilityUI] Using assigned TimelineManager: Player {timelineManager.Owner?.ClientId}, IsOwner: {timelineManager.IsOwner}");
         }
         
-        // CRITICAL CHECK: Only subscribe if this UI belongs to the local player
+        // Subscribe to TemporalStability events
         if (playerStability != null)
         {
-            if (!playerStability.IsOwner)
-            {
-                Debug.LogWarning($"[TemporalStabilityUI] SKIPPING subscription - TemporalStability is not owned by local player! (Player {playerStability.Owner?.ClientId})");
-                // Don't subscribe to other players' events!
-                playerStability = null;
-            }
-            else
-            {
-                Debug.Log($"[TemporalStabilityUI] Subscribing to TemporalStability events for LOCAL player {playerStability.Owner?.ClientId}");
-                playerStability.OnStabilityUpdated += UpdateStabilityDisplay;
-                playerStability.OnCriticalStability += ShowCriticalWarning;
-                
-                // Initialize display
-                UpdateStabilityDisplay(playerStability.CurrentStability, playerStability.MaxStability);
-            }
+            playerStability.OnStabilityUpdated += UpdateStabilityDisplay;
+            playerStability.OnCriticalStability += ShowCriticalWarning;
+            
+            // Initialize display
+            UpdateStabilityDisplay(playerStability.CurrentStability, playerStability.MaxStability);
+            Debug.Log($"[TemporalStabilityUI] Subscribed to TemporalStability events");
         }
         else
         {
             Debug.LogWarning("[TemporalStabilityUI] Could not find TemporalStability component!");
         }
         
-        // CRITICAL CHECK: Only subscribe if this UI belongs to the local player
+        // Subscribe to TimelineManager events
         if (timelineManager != null)
         {
-            if (!timelineManager.IsOwner)
-            {
-                Debug.LogWarning($"[TemporalStabilityUI] SKIPPING subscription - TimelineManager is not owned by local player! (Player {timelineManager.Owner?.ClientId})");
-                // Don't subscribe to other players' events!
-                timelineManager = null;
-            }
-            else
-            {
-                Debug.Log($"[TemporalStabilityUI] Subscribing to TimelineManager events for LOCAL player {timelineManager.Owner?.ClientId}");
-                timelineManager.OnTimelineTransition += UpdateTimelineDisplay;
-                
-                // Initialize display
-                UpdateTimelineDisplay(timelineManager.CurrentTimeline);
-            }
+            timelineManager.OnTimelineTransition += UpdateTimelineDisplay;
+            
+            // Initialize display
+            UpdateTimelineDisplay(timelineManager.CurrentTimeline);
+            Debug.Log($"[TemporalStabilityUI] Subscribed to TimelineManager events");
         }
         else
         {
@@ -115,8 +116,6 @@ public class TemporalStabilityUI : MonoBehaviour
         {
             criticalWarning.SetActive(false);
         }
-        
-        Debug.Log($"[TemporalStabilityUI] Initialization complete. Subscribed to: Stability={playerStability != null}, Timeline={timelineManager != null}");
     }
     
     private void OnDestroy()
@@ -128,18 +127,19 @@ public class TemporalStabilityUI : MonoBehaviour
         {
             playerStability.OnStabilityUpdated -= UpdateStabilityDisplay;
             playerStability.OnCriticalStability -= ShowCriticalWarning;
-            Debug.Log($"[TemporalStabilityUI] Unsubscribed from TemporalStability events");
         }
         
         if (timelineManager != null)
         {
             timelineManager.OnTimelineTransition -= UpdateTimelineDisplay;
-            Debug.Log($"[TemporalStabilityUI] Unsubscribed from TimelineManager events");
         }
     }
     
     private void Update()
     {
+        // Only run visual updates for the local player
+        if (!IsOwner) return;
+        
         // Handle critical warning flash
         if (isCritical && criticalWarning != null)
         {

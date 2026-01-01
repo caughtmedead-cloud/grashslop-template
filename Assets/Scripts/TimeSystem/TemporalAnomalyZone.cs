@@ -1,171 +1,139 @@
 using UnityEngine;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using System.Collections.Generic;
 
 /// <summary>
-/// Temporal anomaly zone that actively degrades stability of players inside it.
-/// This is a MUCH more robust design than the old boolean flag approach.
+/// Temporal Anomaly Zone - Drains player stability over time when inside the zone.
+/// Uses NetworkTrigger for reliable multiplayer trigger detection.
 /// 
-/// KEY IMPROVEMENTS:
-/// - Actively drains players in Update() instead of relying on player's Update()
-/// - Tracks ALL players inside (not just one)
-/// - Configurable degradationRate per zone (enables tiered zones!)
-/// - Implements ITemporalEffect for future extensibility
-/// 
-/// TIERED ZONES EXAMPLE:
-/// - Weak Zone: degradationRate = 2/sec
-/// - Medium Zone: degradationRate = 5/sec
-/// - Strong Zone: degradationRate = 15/sec
-/// - Critical Zone: degradationRate = 30/sec
-/// 
-/// Server-authoritative: Only server processes degradation.
-/// From FishNet docs: "IsServerStarted detects if the instance running the code is the server"
-/// 
-/// NETWORKING NOTE: This uses Unity's OnTriggerEnter/Exit directly (not [ServerRpc]).
-/// From FishNet docs: For server-authoritative collision detection without prediction,
-/// use Unity's callbacks normally and check IsServerStarted inside them.
+/// SETUP REQUIREMENTS:
+/// 1. This GameObject MUST have a NetworkObject component
+/// 2. This GameObject MUST have a Collider with IsTrigger = true
+/// 3. Players MUST have NetworkTrigger component on their TriggerDetector child
+/// 4. Players call this zone's PlayerEntered()/PlayerExited() via ServerRpc
 /// </summary>
-[RequireComponent(typeof(Collider))]
-public class TemporalAnomalyZone : NetworkBehaviour, ITemporalEffect
+public class TemporalAnomalyZone : NetworkBehaviour
 {
     [Header("Zone Configuration")]
-    [Tooltip("Stability drained per second (higher = more dangerous)")]
-    [SerializeField] private float degradationRate = 5f;
+    public string zoneName = "Anomaly Zone";
     
-    [Tooltip("Visual color for zone (editor only - for gizmos)")]
-    [SerializeField] private Color zoneColor = new Color(1f, 0f, 0f, 0.3f); // Red tint
+    [Tooltip("Stability drain per second (negative value)")]
+    [SerializeField] private float stabilityDrainRate = -2.0f;
     
-    [Header("Zone Info (Read-Only)")]
-    [Tooltip("Number of players currently in zone")]
-    [SerializeField] private int playerCount = 0;
+    [Header("Debug Visualization")]
+    [SerializeField] private bool showGizmos = true;
+    [SerializeField] private Color gizmoColor = new Color(1f, 0f, 0f, 0.3f);
     
-    // Track all players currently inside this zone
-    private List<TemporalStability> affectedPlayers = new List<TemporalStability>();
+    // Track players currently in this zone
+    private readonly List<TemporalStability> affectedPlayers = new List<TemporalStability>();
     
-    private Collider triggerCollider;
+    private Collider zoneCollider;
     
     private void Awake()
     {
-        triggerCollider = GetComponent<Collider>();
-        triggerCollider.isTrigger = true;
+        zoneCollider = GetComponent<Collider>();
     }
     
     private void Update()
     {
-        // Only server processes degradation
-        // From FishNet docs: "IsServerStarted detects if the instance running the code is the server"
+        // Only server processes stability drain
         if (!IsServerStarted) return;
         
-        // Drain all players currently in the zone
-        if (affectedPlayers.Count > 0)
+        // Drain stability for all players in the zone
+        for (int i = affectedPlayers.Count - 1; i >= 0; i--)
         {
-            float degradeAmount = -degradationRate * Time.deltaTime;
+            TemporalStability stability = affectedPlayers[i];
             
-            foreach (TemporalStability player in affectedPlayers)
+            // Remove null or destroyed players
+            if (stability == null)
             {
-                if (player != null)
-                {
-                    ApplyEffect(player, Time.deltaTime);
-                }
+                affectedPlayers.RemoveAt(i);
+                continue;
             }
+            
+            // Apply stability drain
+            float drainAmount = stabilityDrainRate * Time.deltaTime;
+            stability.ModifyStability(drainAmount);
         }
     }
     
     /// <summary>
-    /// ITemporalEffect implementation: Apply degradation to target player.
+    /// Called by PlayerZoneTriggerHandler via ServerRpc when a player enters the zone.
+    /// Server-only method - adds player to affected list.
     /// </summary>
-    public void ApplyEffect(TemporalStability target, float deltaTime)
+    public void PlayerEntered(TemporalStability stability)
     {
-        if (target == null) return;
-        
-        // Negative amount = degradation
-        float degradeAmount = -degradationRate * deltaTime;
-        target.ModifyStability(degradeAmount);
-    }
-    
-    /// <summary>
-    /// Unity physics callback: Detect when something enters the anomaly zone.
-    /// From FishNet docs: For server-authoritative collision detection without prediction,
-    /// use Unity's callbacks normally and check IsServerStarted inside them.
-    /// </summary>
-    private void OnTriggerEnter(Collider other)
-    {
-        // Only process on server
-        // From FishNet docs: "IsServerStarted detects if the instance running the code is the server"
         if (!IsServerStarted) return;
         
-        // Check if the colliding object has TemporalStability
-        TemporalStability stability = other.GetComponent<TemporalStability>();
         if (stability != null && !affectedPlayers.Contains(stability))
         {
-            // Add player to affected list
             affectedPlayers.Add(stability);
-            playerCount = affectedPlayers.Count;
-            
-            Debug.Log($"[Server] Player {stability.Owner.ClientId} entered anomaly zone (rate: {degradationRate}/sec) - {playerCount} players in zone");
+            Debug.Log($"[AnomalyZone] '{zoneName}' - Player {stability.Owner?.ClientId} ENTERED (Total players: {affectedPlayers.Count})");
         }
     }
     
     /// <summary>
-    /// Unity physics callback: Detect when something exits the anomaly zone.
+    /// Called by PlayerZoneTriggerHandler via ServerRpc when a player exits the zone.
+    /// Server-only method - removes player from affected list.
     /// </summary>
-    private void OnTriggerExit(Collider other)
-    {
-        // Only process on server
-        if (!IsServerStarted) return;
-        
-        // Check if the colliding object has TemporalStability
-        TemporalStability stability = other.GetComponent<TemporalStability>();
-        if (stability != null && affectedPlayers.Contains(stability))
-        {
-            // Remove player from affected list
-            affectedPlayers.Remove(stability);
-            playerCount = affectedPlayers.Count;
-            
-            Debug.Log($"[Server] Player {stability.Owner.ClientId} exited anomaly zone - {playerCount} players remaining");
-        }
-    }
-    
-    /// <summary>
-    /// Cleanup: Remove null references from list.
-    /// Called periodically to handle destroyed player objects.
-    /// </summary>
-    private void LateUpdate()
+    public void PlayerExited(TemporalStability stability)
     {
         if (!IsServerStarted) return;
         
-        // Remove any null references (destroyed players)
-        affectedPlayers.RemoveAll(player => player == null);
-        
-        // Update count
-        if (playerCount != affectedPlayers.Count)
+        if (stability != null && affectedPlayers.Remove(stability))
         {
-            playerCount = affectedPlayers.Count;
+            Debug.Log($"[AnomalyZone] '{zoneName}' - Player {stability.Owner?.ClientId} EXITED (Total players: {affectedPlayers.Count})");
         }
     }
     
-    /// <summary>
-    /// Visualize the zone in the Scene view.
-    /// This is editor-only and won't run in builds.
-    /// </summary>
     private void OnDrawGizmos()
     {
-        Gizmos.color = zoneColor;
+        if (!showGizmos) return;
+        
+        Collider col = zoneCollider != null ? zoneCollider : GetComponent<Collider>();
+        if (col == null) return;
+        
+        Gizmos.color = gizmoColor;
+        
+        if (col is BoxCollider boxCol)
+        {
+            Matrix4x4 rotationMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+            Gizmos.matrix = rotationMatrix;
+            Gizmos.DrawCube(boxCol.center, boxCol.size);
+            Gizmos.matrix = Matrix4x4.identity;
+        }
+        else if (col is SphereCollider sphereCol)
+        {
+            Gizmos.DrawSphere(transform.position + sphereCol.center, sphereCol.radius * transform.lossyScale.x);
+        }
+        else if (col is CapsuleCollider capsuleCol)
+        {
+            // Draw capsule approximation
+            Vector3 center = transform.position + capsuleCol.center;
+            float radius = capsuleCol.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.z);
+            Gizmos.DrawSphere(center, radius);
+        }
+    }
+    
+    // FIXED: Added 'new' keyword to suppress CS0114 warning
+    // This intentionally hides NetworkBehaviour.OnValidate() - we're not overriding it
+    private new void OnValidate()
+    {
+        // Validation warnings for proper setup
+        if (GetComponent<NetworkObject>() == null)
+        {
+            Debug.LogWarning($"[TemporalAnomalyZone] '{gameObject.name}' is missing a NetworkObject component! Add one for ServerRpc to work.", this);
+        }
         
         Collider col = GetComponent<Collider>();
-        if (col != null)
+        if (col == null)
         {
-            if (col is BoxCollider box)
-            {
-                Gizmos.matrix = transform.localToWorldMatrix;
-                Gizmos.DrawCube(box.center, box.size);
-                Gizmos.DrawWireCube(box.center, box.size);
-            }
-            else if (col is SphereCollider sphere)
-            {
-                Gizmos.DrawSphere(transform.position + sphere.center, sphere.radius);
-                Gizmos.DrawWireSphere(transform.position + sphere.center, sphere.radius);
-            }
+            Debug.LogWarning($"[TemporalAnomalyZone] '{gameObject.name}' is missing a Collider component! Add a BoxCollider or SphereCollider with IsTrigger=true.", this);
+        }
+        else if (!col.isTrigger)
+        {
+            Debug.LogWarning($"[TemporalAnomalyZone] '{gameObject.name}' Collider is not set to IsTrigger! Set IsTrigger=true in the Inspector.", this);
         }
     }
 }

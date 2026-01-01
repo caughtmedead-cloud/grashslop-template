@@ -1158,6 +1158,82 @@ Transform:
   - {fileID: 3658806428440120811}
   m_Father: {fileID: 7690593654823269687}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2880706927384819504
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6800518851491151973}
+  - component: {fileID: 5920192671965091318}
+  - component: {fileID: 9114039164303258155}
+  m_Layer: 0
+  m_Name: TriggerDetector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6800518851491151973
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2880706927384819504}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6279403022981445435}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &5920192671965091318
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2880706927384819504}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &9114039164303258155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2880706927384819504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dc97a8b9e628044e83004c93095c14d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Component.Prediction.NetworkTrigger
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: -8147693711007459752}
+  _networkObjectCache: {fileID: 0}
+  MaximumSimultaneousHits: 16
+  AdditionalSize: 0.1
+  Layers:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &3007192221515932709
 GameObject:
   m_ObjectHideFlags: 0
@@ -2564,6 +2640,7 @@ GameObject:
   - component: {fileID: 4235440094072640070}
   - component: {fileID: -845346503486197219}
   - component: {fileID: 2568120462375791988}
+  - component: {fileID: 7922469281849709483}
   m_Layer: 0
   m_Name: IKRig_TFP
   m_TagString: Untagged
@@ -2589,6 +2666,7 @@ Transform:
   - {fileID: 4459429452583302584}
   - {fileID: 4993965781392656853}
   - {fileID: 6748231427665981747}
+  - {fileID: 6800518851491151973}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-8147693711007459752
@@ -2772,6 +2850,8 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 0}
   maxStability: 100
   criticalThreshold: 25
+  verboseLogging: 0
+  logThreshold: 5
 --- !u!114 &2568120462375791988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2795,6 +2875,21 @@ MonoBehaviour:
   shiftChance: 0.3
   futureTransitionThreshold: 60
   pastTransitionThreshold: 20
+--- !u!114 &7922469281849709483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6660607704666664321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a77685a570fcf6b46bafe2bbcd1da05f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerZoneTriggerHandler
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: -8147693711007459752}
+  _networkObjectCache: {fileID: 0}
 --- !u!1 &6763571539781006031
 GameObject:
   m_ObjectHideFlags: 0
