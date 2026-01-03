@@ -88,3 +88,8 @@ packages-lock.json
 
 # Plastic SCM
 .plastic/
+
+# Demo folders from downloaded assets
+[Aa]ssets/FishNet/Demos/
+[Aa]ssets/DTT/**/Demo/
+[Aa]ssets/**/GameKit/**/Demo/
