@@ -65,11 +65,22 @@ MonoBehaviour:
     - 907e0e73ce407e54694c2e29bdbdf6e6
     - 75ddd54212572834fb25e9a478fa281b
     - 957d19a90c569a446b9b8798ec05abc2
-    - 7695d6bfa34c2f94ba4cb0aaac4cf52b
+    - ba1c67f02cae22d46a14f4f9cece1c00
     - 61c21e3fc3cf8db4a8f427865eb3abb1
     - c3499d0ff736fed4bb715c1edd41ad92
     - 920be37be54098d44801e6bd8999092d
-    - c45404677e018c54ebe2f6d4fe10901b
+    - 055932e83f870b740b4ffe626572c616
+    - 43b13b9f574aae24a97dc9806f2d4cb1
+    - 0c1bd8472bd9cad418dce9204457df98
+    - 7e5d4db94d14d0641b41f8728581f6d9
+    - e2ad3093e00e9794aad663742e10ee80
+    - d955babd35b8ccf468b9c13f11e87cf4
+    - 19632167bfac843488ab32e6bd3f7ff3
+    - c7030e8d5b993ef4184efdac5e9632ca
+    - 998454a0f2d92ca429be77b88e145ffd
+    - 089f4575396f8a94ba33e9a675713ba6
+    - 7e6d9d7f380b7b2468ac32322cdf1280
+    - 9ce16d2cccb2b1b47b37f490f647b477
     values:
     - guid: 00000000000000001000000000000000
       iColor: 0
@@ -326,9 +337,9 @@ MonoBehaviour:
       autoIcon: 
       customIcon: 
       autoIconDirty: 0
-    - guid: 7695d6bfa34c2f94ba4cb0aaac4cf52b
+    - guid: ba1c67f02cae22d46a14f4f9cece1c00
       iColor: 0
-      autoIcon: 
+      autoIcon: Prefab Icon
       customIcon: 
       autoIconDirty: 0
     - guid: 61c21e3fc3cf8db4a8f427865eb3abb1
@@ -346,7 +357,62 @@ MonoBehaviour:
       autoIcon: 
       customIcon: 
       autoIconDirty: 0
-    - guid: c45404677e018c54ebe2f6d4fe10901b
+    - guid: 055932e83f870b740b4ffe626572c616
+      iColor: 0
+      autoIcon: cs Script Icon
+      customIcon: 
+      autoIconDirty: 0
+    - guid: 43b13b9f574aae24a97dc9806f2d4cb1
+      iColor: 0
+      autoIcon: 
+      customIcon: 
+      autoIconDirty: 0
+    - guid: 0c1bd8472bd9cad418dce9204457df98
+      iColor: 0
+      autoIcon: Prefab Icon
+      customIcon: 
+      autoIconDirty: 0
+    - guid: 7e5d4db94d14d0641b41f8728581f6d9
+      iColor: 0
+      autoIcon: 
+      customIcon: 
+      autoIconDirty: 0
+    - guid: e2ad3093e00e9794aad663742e10ee80
+      iColor: 0
+      autoIcon: Material Icon
+      customIcon: 
+      autoIconDirty: 1
+    - guid: d955babd35b8ccf468b9c13f11e87cf4
+      iColor: 0
+      autoIcon: 
+      customIcon: 
+      autoIconDirty: 0
+    - guid: 19632167bfac843488ab32e6bd3f7ff3
+      iColor: 0
+      autoIcon: 
+      customIcon: 
+      autoIconDirty: 0
+    - guid: c7030e8d5b993ef4184efdac5e9632ca
+      iColor: 0
+      autoIcon: 
+      customIcon: 
+      autoIconDirty: 0
+    - guid: 998454a0f2d92ca429be77b88e145ffd
+      iColor: 0
+      autoIcon: 
+      customIcon: 
+      autoIconDirty: 0
+    - guid: 089f4575396f8a94ba33e9a675713ba6
+      iColor: 0
+      autoIcon: 
+      customIcon: 
+      autoIconDirty: 0
+    - guid: 7e6d9d7f380b7b2468ac32322cdf1280
+      iColor: 5
+      autoIcon: 
+      customIcon: 
+      autoIconDirty: 0
+    - guid: 9ce16d2cccb2b1b47b37f490f647b477
       iColor: 0
       autoIcon: 
       customIcon: 

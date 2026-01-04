@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f45f0a003c8781b47adec0d634752194
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 189574
+  packageName: Regular Animations
+  packageVersion: 1.2.2
+  assetPath: Assets/Polygonmaker/Polygonmaker Animations/Regular/Scenes/Source/Animators
+    for render/Anim_Regular@stunned.controller
+  uploadId: 713349

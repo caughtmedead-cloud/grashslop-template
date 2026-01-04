@@ -11,6 +11,7 @@ public class PlayerController : NetworkBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float sprintMultiplier = 1.5f;
+    [SerializeField] private float movementSmoothTime = 10f;
     
     [Header("Jump Settings")]
     [SerializeField] private float jumpHeight = 1.5f; // How high the player jumps
@@ -28,6 +29,7 @@ public class PlayerController : NetworkBehaviour
     // Movement variables
     private Vector3 velocity;
     private bool isGrounded;
+    private float currentHorizontalSpeed = 0f; // Track smoothed horizontal movement speed
     
     // Jump variables
     private float gravity;
@@ -128,8 +130,18 @@ public class PlayerController : NetworkBehaviour
         Vector3 moveDirection = transform.right * horizontal + transform.forward * vertical;
         
         // Apply speed
-        float currentSpeed = isSprinting ? moveSpeed * sprintMultiplier : moveSpeed;
-        characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
+        float targetSpeed = isSprinting ? moveSpeed * sprintMultiplier : moveSpeed;
+
+        // Zero target speed when no input to avoid lingering motion
+        if (moveDirection.magnitude < 0.01f)
+        {
+            targetSpeed = 0f;
+        }
+
+        // Smooth speed transition for consistent animation/feedback
+        currentHorizontalSpeed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed, Time.deltaTime * movementSmoothTime);
+
+        characterController.Move(moveDirection * targetSpeed * Time.deltaTime);
 
         // Simple jump: Press space while grounded = jump
         if (jumpPressed && isGrounded)
@@ -184,6 +196,18 @@ public class PlayerController : NetworkBehaviour
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+        }
+    }
+
+    /// <summary>
+    /// Public property to expose current horizontal movement speed for animations.
+    /// Returns smoothed speed value that transitions gradually.
+    /// </summary>
+    public float CurrentMovementSpeed
+    {
+        get
+        {
+            return currentHorizontalSpeed;
         }
     }
 }

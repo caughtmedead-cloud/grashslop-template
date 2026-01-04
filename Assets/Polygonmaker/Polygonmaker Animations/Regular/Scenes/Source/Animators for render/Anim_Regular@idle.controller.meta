@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 320eb7b8d4445a943804b743a35310af
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 189574
+  packageName: Regular Animations
+  packageVersion: 1.2.2
+  assetPath: Assets/Polygonmaker/Polygonmaker Animations/Regular/Scenes/Source/Animators
+    for render/Anim_Regular@idle.controller
+  uploadId: 713349
