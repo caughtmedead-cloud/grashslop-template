@@ -75,13 +75,28 @@ public class EnhancedTemporalZone : NetworkBehaviour
     private void Awake()
     {
         CacheActiveCollider();
+        _effectRadius.OnChange += OnRadiusChanged;
+    }
+
+    public override void OnStartNetwork()
+    {
+        base.OnStartNetwork();
         
-        if (Application.isPlaying)
+        if (IsServerStarted)
         {
             _effectRadius.Value = _editorEffectRadius;
+            UpdateColliderSize();
         }
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
         
-        _effectRadius.OnChange += OnRadiusChanged;
+        if (!IsServerStarted)
+        {
+            UpdateColliderSize();
+        }
     }
 
     private void Start()

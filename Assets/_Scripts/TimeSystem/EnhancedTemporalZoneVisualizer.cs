@@ -5,10 +5,13 @@ using DrawXXL;
 using UnityEditor;
 #endif
 
-[ExecuteInEditMode]
+[ExecuteAlways]
 [DefaultExecutionOrder(31000)]
 public class EnhancedTemporalZoneVisualizer : VisualizerParent
 {
+    private const string GLOBAL_TEXT_VISIBILITY_KEY = "AnomalyZone_GlobalTextVisibility";
+    private const string GLOBAL_PLAYMODE_VISIBILITY_KEY = "AnomalyZone_GlobalPlayModeVisibility";
+
     [HideInInspector]
     public EnhancedTemporalZone zone;
 
@@ -24,16 +27,45 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
         if (zone == null)
             return;
 
+        if (Application.isPlaying && !GetGlobalPlayModeVisibility())
+            return;
+
         Collider col = zone.GetActiveCollider();
         if (col == null)
             return;
 
-        DrawGizmoFill(col);
+        if (!Application.isPlaying)
+        {
+            DrawGizmoFill(col);
+        }
+
         DrawDrawXXLShapes(col);
 #endif
     }
 
 #if UNITY_EDITOR
+    public static bool GetGlobalTextVisibility()
+    {
+        return EditorPrefs.GetBool(GLOBAL_TEXT_VISIBILITY_KEY, false);
+    }
+
+    public static void SetGlobalTextVisibility(bool value)
+    {
+        EditorPrefs.SetBool(GLOBAL_TEXT_VISIBILITY_KEY, value);
+        SceneView.RepaintAll();
+    }
+
+    public static bool GetGlobalPlayModeVisibility()
+    {
+        return EditorPrefs.GetBool(GLOBAL_PLAYMODE_VISIBILITY_KEY, false);
+    }
+
+    public static void SetGlobalPlayModeVisibility(bool value)
+    {
+        EditorPrefs.SetBool(GLOBAL_PLAYMODE_VISIBILITY_KEY, value);
+        SceneView.RepaintAll();
+    }
+
     private void DrawGizmoFill(Collider col)
     {
         if (!zone.ShowGizmos)
@@ -80,9 +112,12 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
             return;
 
         bool isSelected = UnityEditor.Selection.Contains(gameObject);
+        bool globalTextEnabled = GetGlobalTextVisibility();
+        bool shouldShowText = globalTextEnabled || isSelected;
+
         Color color = isSelected ? zone.selectedColor : zone.zoneColor;
         float linesWidth = isSelected ? 0.02f : 0.0f;
-        int struts = isSelected ? 4 : zone.strutCount;
+        int struts = zone.strutCount;
         bool hiddenByObjects = !isSelected;
 
         UtilitiesDXXL_Text.Set_automaticTextOrientation_reversible(DrawText.AutomaticTextOrientation.screen);
@@ -101,15 +136,15 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
                 lineStyle: DrawBasics.LineStyle.solid,
                 stylePatternScaleFactor: 1f,
                 skipDrawingEquator: false,
-                textBlockAboveLine: isSelected,
+                textBlockAboveLine: false,
                 durationInSec: 0f,
                 hiddenByNearerObjects: hiddenByObjects
             );
 
-            if (isSelected && zone.showTextLabel)
+            if (shouldShowText && zone.showTextLabel)
             {
                 Vector3 textPos = transform.position + Vector3.up * (sphereCol.radius * zone.textAnchorHeight);
-                DrawTextLabel(textPos);
+                DrawTextLabel(textPos, isSelected);
             }
         }
         else if (col is BoxCollider boxCol)
@@ -123,16 +158,16 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
                 text: null,
                 lineStyle: DrawBasics.LineStyle.solid,
                 stylePatternScaleFactor: 1f,
-                textBlockAboveLine: isSelected,
+                textBlockAboveLine: false,
                 durationInSec: 0f,
                 hiddenByNearerObjects: hiddenByObjects
             );
 
-            if (isSelected && zone.showTextLabel)
+            if (shouldShowText && zone.showTextLabel)
             {
                 float halfHeight = boxCol.size.y * 0.5f;
                 Vector3 textPos = transform.position + Vector3.up * (halfHeight * zone.textAnchorHeight);
-                DrawTextLabel(textPos);
+                DrawTextLabel(textPos, isSelected);
             }
         }
         else if (col is CapsuleCollider capCol)
@@ -147,16 +182,16 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
                 text: null,
                 lineStyle: DrawBasics.LineStyle.solid,
                 stylePatternScaleFactor: 1f,
-                textBlockAboveLine: isSelected,
+                textBlockAboveLine: false,
                 durationInSec: 0f,
                 hiddenByNearerObjects: hiddenByObjects
             );
 
-            if (isSelected && zone.showTextLabel)
+            if (shouldShowText && zone.showTextLabel)
             {
                 float halfHeight = capCol.height * 0.5f;
                 Vector3 textPos = transform.position + Vector3.up * (halfHeight * zone.textAnchorHeight);
-                DrawTextLabel(textPos);
+                DrawTextLabel(textPos, isSelected);
             }
         }
         UtilitiesDXXL_Text.Reverse_automaticTextOrientation();
@@ -180,15 +215,17 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
         }
     }
 
-    private void DrawTextLabel(Vector3 worldPosition)
+    private void DrawTextLabel(Vector3 worldPosition, bool isSelected)
     {
         float radius = zone.effectRadius;
         string text = $"{zone.zoneName}\nRadius: {radius:F1}m\nDrain: {zone.StabilityDrainRate:F1}/s";
 
+        Color textColor = isSelected ? zone.selectedColor : Color.white;
+
         DrawText.Write(
             text: text,
             position: worldPosition,
-            color: zone.selectedColor,
+            color: textColor,
             size: zone.infoTextSize,
             textDirection: default,
             textUp: default,
