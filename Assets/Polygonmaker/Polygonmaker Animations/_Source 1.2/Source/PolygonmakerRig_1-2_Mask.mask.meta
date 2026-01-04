@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: bdf9c12183f0a3e47946368833550809
+timeCreated: 1536013587
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 31900000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 202927
+  packageName: Locomotion Animations
+  packageVersion: 1.5.1
+  assetPath: Assets/Polygonmaker/Polygonmaker Animations/_Source 1.2/Source/PolygonmakerRig_1-2_Mask.mask
+  uploadId: 713336

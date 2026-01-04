@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c9fa18677e3cbb6459adb9885dc62bfa
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 202927
+  packageName: Locomotion Animations
+  packageVersion: 1.5.1
+  assetPath: Assets/Polygonmaker/Polygonmaker Animations/Locomotion/Animator_Locomotion.controller
+  uploadId: 713336

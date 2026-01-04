@@ -1763,7 +1763,7 @@ GameObject:
   - component: {fileID: 1221078391}
   - component: {fileID: 1221078390}
   m_Layer: 0
-  m_Name: Cube (1)
+  m_Name: stairtest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1991,7 +1991,7 @@ GameObject:
   - component: {fileID: 1796071580}
   - component: {fileID: 1796071579}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: ramptest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

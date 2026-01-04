@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b566a5f80b89c874ba4ac916938b5b5d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 202927
+  packageName: Locomotion Animations
+  packageVersion: 1.5.1
+  assetPath: Assets/Polygonmaker/Polygonmaker Animations/Locomotion/Scenes/Source/Animators
+    for render/Anim_Locomotion@walkStealthL45.controller
+  uploadId: 713336

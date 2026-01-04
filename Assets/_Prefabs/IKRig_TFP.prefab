@@ -347,6 +347,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9388dd56073c98a4fb4e4f1ef3a71620, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TemporalStabilityUI
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: -8147693711007459752}
+  _networkObjectCache: {fileID: 0}
   playerStability: {fileID: -845346503486197219}
   timelineManager: {fileID: 2568120462375791988}
   stabilityFillImage: {fileID: 4303472014962239876}
@@ -2641,6 +2644,7 @@ GameObject:
   - component: {fileID: -845346503486197219}
   - component: {fileID: 2568120462375791988}
   - component: {fileID: 7922469281849709483}
+  - component: {fileID: 4566681990105827963}
   m_Layer: 0
   m_Name: IKRig_TFP
   m_TagString: Untagged
@@ -2765,7 +2769,7 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: -8147693711007459752}
   _networkObjectCache: {fileID: -8147693711007459752}
-  moveSpeed: 5
+  moveSpeed: 2
   sprintMultiplier: 1.5
   jumpHeight: 1.5
   timeToJumpApex: 0.4
@@ -2890,6 +2894,28 @@ MonoBehaviour:
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: -8147693711007459752}
   _networkObjectCache: {fileID: 0}
+--- !u!95 &4566681990105827963
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6660607704666664321}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6ad67d20a1dc6c548bb674f6b4dbf9a1, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6763571539781006031
 GameObject:
   m_ObjectHideFlags: 0
