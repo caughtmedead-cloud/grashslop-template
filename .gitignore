@@ -94,8 +94,6 @@ packages-lock.json
 [Aa]ssets/DTT/**/Demo/
 [Aa]ssets/**/GameKit/**/Demo/
 
-# Animation files (large FBX files)
-[Aa]ssets/_Animation/**/*.fbx
-[Aa]ssets/_Animation/**/*.FBX
-[Aa]ssets/**/Animations/**/*.fbx
-[Aa]ssets/**/Animations/**/*.FBX
+# Large asset folders
+[Aa]ssets/_Animation/
+[Aa]ssets/Polygonmaker/
