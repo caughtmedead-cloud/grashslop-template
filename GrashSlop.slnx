@@ -5,12 +5,12 @@
   <Project Path="DrawXXL.csproj" />
   <Project Path="Kybernetik.InspectorGadgets.csproj" />
   <Project Path="FishNet.Runtime.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="DTT.EditorUtilities.Editor.csproj" />
-  <Project Path="DTT.ProceduralUI.Editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="DTT.ProceduralUI.Editor.csproj" />
   <Project Path="GameKit.Dependencies.csproj" />
   <Project Path="DrawXXL-Editor.csproj" />
-  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="VFolders.csproj" />
   <Project Path="CoreInventory.Editor.csproj" />
   <Project Path="Inventory.Scripts.csproj" />
@@ -21,10 +21,12 @@
   <Project Path="Assembly-CSharp-firstpass.csproj" />
   <Project Path="CustomToolbar.csproj" />
   <Project Path="FishNet.Demos.csproj" />
+  <Project Path="UMotionSourceEditor.csproj" />
   <Project Path="DTT.RuntimeUtilities.Demo.csproj" />
   <Project Path="DTT.EditorUtilities.Demo.csproj" />
   <Project Path="Assembly-CSharp-Editor-firstpass.csproj" />
   <Project Path="Bezi.Editor.csproj" />
+  <Project Path="UMotionSourceApplication.csproj" />
   <Project Path="EditMode.csproj" />
   <Project Path="DTT.ProceduralUI.Tests.csproj" />
   <Project Path="DTT.ProceduralUI.Tests.Editor.csproj" />
