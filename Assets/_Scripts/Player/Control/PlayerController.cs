@@ -10,6 +10,10 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float groundAcceleration = 20f;
     [SerializeField] private float groundDeceleration = 25f;
 
+    [Header("Input Settings")]
+    [SerializeField] [Range(0f, 0.9f)] private float moveStickDeadzone = 0.15f;
+    [SerializeField] [Range(0f, 0.9f)] private float lookStickDeadzone = 0.1f;
+
     [Header("Air Control Settings")]
     [SerializeField] private bool enableAirControl = true;
     [SerializeField] [Range(0f, 1f)] private float airControlMultiplier = 0.2f;
@@ -27,8 +31,9 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private LayerMask groundLayer = -1;
     [SerializeField] private bool showGroundCheckDebug = false;
 
-    [Header("Mouse Look Settings")]
+    [Header("Look Settings")]
     [SerializeField] private float mouseSensitivity = 2f;
+    [SerializeField] private float gamepadSensitivity = 150f;
     [SerializeField] private float maxLookAngle = 80f;
 
     private CharacterController characterController;
@@ -134,9 +139,28 @@ public class PlayerController : NetworkBehaviour
 
     private void ReadInput()
     {
-        moveInput = inputActions.Player.Move.ReadValue<Vector2>();
-        lookInput = inputActions.Player.Look.ReadValue<Vector2>();
+        Vector2 rawMoveInput = inputActions.Player.Move.ReadValue<Vector2>();
+        Vector2 rawLookInput = inputActions.Player.Look.ReadValue<Vector2>();
+        
+        moveInput = ApplyRadialDeadzone(rawMoveInput, moveStickDeadzone);
+        lookInput = ApplyRadialDeadzone(rawLookInput, lookStickDeadzone);
+        
         sprintInput = inputActions.Player.Sprint.IsPressed();
+    }
+
+    private Vector2 ApplyRadialDeadzone(Vector2 input, float deadzone)
+    {
+        float magnitude = input.magnitude;
+        
+        if (magnitude < deadzone)
+        {
+            return Vector2.zero;
+        }
+        
+        float normalizedMagnitude = (magnitude - deadzone) / (1f - deadzone);
+        normalizedMagnitude = Mathf.Clamp01(normalizedMagnitude);
+        
+        return input.normalized * normalizedMagnitude;
     }
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
@@ -249,12 +273,24 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleMouseLook()
     {
-        float mouseX = lookInput.x * mouseSensitivity;
-        float mouseY = lookInput.y * mouseSensitivity;
+        bool isGamepad = Gamepad.current != null && lookInput.sqrMagnitude > 0f;
+        
+        float lookX, lookY;
+        
+        if (isGamepad)
+        {
+            lookX = lookInput.x * gamepadSensitivity * Time.deltaTime;
+            lookY = lookInput.y * gamepadSensitivity * Time.deltaTime;
+        }
+        else
+        {
+            lookX = lookInput.x * mouseSensitivity;
+            lookY = lookInput.y * mouseSensitivity;
+        }
 
-        transform.Rotate(Vector3.up * mouseX);
+        transform.Rotate(Vector3.up * lookX);
 
-        verticalRotation -= mouseY;
+        verticalRotation -= lookY;
         verticalRotation = Mathf.Clamp(verticalRotation, -maxLookAngle, maxLookAngle);
         
         if (playerCamera != null)
@@ -348,5 +384,29 @@ public class PlayerController : NetworkBehaviour
     public float GetVelocityZ()
     {
         return transform.InverseTransformDirection(currentVelocity).z;
+    }
+
+    public float MoveStickDeadzone 
+    { 
+        get => moveStickDeadzone; 
+        set => moveStickDeadzone = Mathf.Clamp(value, 0f, 0.9f); 
+    }
+
+    public float LookStickDeadzone 
+    { 
+        get => lookStickDeadzone; 
+        set => lookStickDeadzone = Mathf.Clamp(value, 0f, 0.9f); 
+    }
+
+    public float MouseSensitivity 
+    { 
+        get => mouseSensitivity; 
+        set => mouseSensitivity = Mathf.Clamp(value, 0.1f, 10f); 
+    }
+
+    public float GamepadSensitivity 
+    { 
+        get => gamepadSensitivity; 
+        set => gamepadSensitivity = Mathf.Clamp(value, 10f, 300f); 
     }
 }

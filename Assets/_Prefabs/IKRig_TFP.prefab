@@ -317,6 +317,7 @@ Transform:
   m_Children:
   - {fileID: 6009223407971828513}
   - {fileID: 1019211916619856595}
+  - {fileID: 2756467984266742805}
   m_Father: {fileID: 6170824354466653392}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &781343517331205742
@@ -978,12 +979,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1921375575602194800}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.70710695, y: 1.437046e-15, z: -1.4370451e-15, w: 0.70710665}
-  m_LocalPosition: {x: 0, y: 1.602, z: 0.099}
+  m_LocalRotation: {x: 0.66289043, y: 1.3116637e-15, z: -1.5617295e-15, w: 0.7487165}
+  m_LocalPosition: {x: 0, y: 0.119674854, z: 0.115362}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6279403022981445435}
+  m_Father: {fileID: 1243364647933111012}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &3950675348639042319
 Camera:
@@ -3083,7 +3084,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2756467984266742805}
   - {fileID: 3420677028985917465}
   - {fileID: 2590007902733014682}
   - {fileID: 238123097275138854}
@@ -3198,6 +3198,8 @@ MonoBehaviour:
   sprintSpeed: 7
   groundAcceleration: 30
   groundDeceleration: 30
+  moveStickDeadzone: 0.05
+  lookStickDeadzone: 0.05
   enableAirControl: 1
   airControlMultiplier: 0.2
   jumpHeight: 1.5
@@ -3212,6 +3214,7 @@ MonoBehaviour:
     m_Bits: 128
   showGroundCheckDebug: 1
   mouseSensitivity: 0.1
+  gamepadSensitivity: 150
   maxLookAngle: 80
 --- !u!114 &1655560163177980045
 MonoBehaviour:
