@@ -93,3 +93,9 @@ packages-lock.json
 [Aa]ssets/FishNet/Demos/
 [Aa]ssets/DTT/**/Demo/
 [Aa]ssets/**/GameKit/**/Demo/
+
+# Animation files (large FBX files)
+[Aa]ssets/_Animation/**/*.fbx
+[Aa]ssets/_Animation/**/*.FBX
+[Aa]ssets/**/Animations/**/*.fbx
+[Aa]ssets/**/Animations/**/*.FBX

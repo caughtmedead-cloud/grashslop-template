@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 66327130}
   - component: {fileID: 66327129}
   - component: {fileID: 66327128}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -528,7 +528,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 505702790}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Geometry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -564,7 +564,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 558107427}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -603,7 +603,7 @@ GameObject:
   - component: {fileID: 575893608}
   - component: {fileID: 575893607}
   - component: {fileID: 575893606}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -747,7 +747,7 @@ GameObject:
   - component: {fileID: 605683927}
   - component: {fileID: 605683926}
   - component: {fileID: 605683925}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -858,7 +858,7 @@ GameObject:
   - component: {fileID: 645904846}
   - component: {fileID: 645904845}
   - component: {fileID: 645904844}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -969,7 +969,7 @@ GameObject:
   - component: {fileID: 652563182}
   - component: {fileID: 652563181}
   - component: {fileID: 652563180}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Center
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1080,7 +1080,7 @@ GameObject:
   - component: {fileID: 697948585}
   - component: {fileID: 697948584}
   - component: {fileID: 697948583}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1365,7 +1365,7 @@ GameObject:
   - component: {fileID: 960402689}
   - component: {fileID: 960402688}
   - component: {fileID: 960402687}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1651,7 +1651,7 @@ GameObject:
   - component: {fileID: 1197996252}
   - component: {fileID: 1197996251}
   - component: {fileID: 1197996250}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1762,7 +1762,7 @@ GameObject:
   - component: {fileID: 1221078392}
   - component: {fileID: 1221078391}
   - component: {fileID: 1221078390}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: stairtest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1879,7 +1879,7 @@ GameObject:
   - component: {fileID: 1717248275}
   - component: {fileID: 1717248274}
   - component: {fileID: 1717248273}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1990,7 +1990,7 @@ GameObject:
   - component: {fileID: 1796071581}
   - component: {fileID: 1796071580}
   - component: {fileID: 1796071579}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ramptest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2101,7 +2101,7 @@ GameObject:
   - component: {fileID: 1806805537}
   - component: {fileID: 1806805536}
   - component: {fileID: 1806805535}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2212,7 +2212,7 @@ GameObject:
   - component: {fileID: 1808673054}
   - component: {fileID: 1808673053}
   - component: {fileID: 1808673052}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2323,7 +2323,7 @@ GameObject:
   - component: {fileID: 1866269555}
   - component: {fileID: 1866269554}
   - component: {fileID: 1866269553}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2585,7 +2585,7 @@ GameObject:
   - component: {fileID: 3521683707466773123}
   - component: {fileID: 7218820239248278125}
   - component: {fileID: 5059788001672154254}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Back_Part_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2603,7 +2603,7 @@ GameObject:
   - component: {fileID: 4024233217588088173}
   - component: {fileID: 7133170251085893050}
   - component: {fileID: 2329960007035633681}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Back_Part_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2690,7 +2690,7 @@ GameObject:
   - component: {fileID: 2355653191682247708}
   - component: {fileID: 1172976811987324086}
   - component: {fileID: 7499497021674395898}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Rings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2771,7 +2771,7 @@ GameObject:
   - component: {fileID: 2667994382452280172}
   - component: {fileID: 6476517947687084780}
   - component: {fileID: 4229607126010098906}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Stand_Part_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2802,7 +2802,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3874231289254137071}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Stand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2881,7 +2881,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1448501443085806459}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Ball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2940,7 +2940,7 @@ GameObject:
   - component: {fileID: 1296738678326357226}
   - component: {fileID: 8988423917994663629}
   - component: {fileID: 7476877889312545141}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Bottom_Cap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3117,7 +3117,7 @@ GameObject:
   - component: {fileID: 8577614354117532858}
   - component: {fileID: 3886155221346378004}
   - component: {fileID: 8097064273423272568}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Ball_Part
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3143,7 +3143,7 @@ GameObject:
   - component: {fileID: 750974001258836848}
   - component: {fileID: 285757673750222148}
   - component: {fileID: 7120302010817048496}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Stand_Logo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3333,7 +3333,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7823694312774259421}
   - component: {fileID: 7823694312774259422}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: UnityMaterialBall_Gold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3447,7 +3447,7 @@ GameObject:
   - component: {fileID: 6233777116457369307}
   - component: {fileID: 7105339341735408668}
   - component: {fileID: 9102376964654609776}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Back_Part_Logo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3513,7 +3513,7 @@ GameObject:
   - component: {fileID: 7404782291424719770}
   - component: {fileID: 5691571643838763082}
   - component: {fileID: 8496002568620297863}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Stand_Part_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3531,7 +3531,7 @@ GameObject:
   - component: {fileID: 6754955248402670120}
   - component: {fileID: 1507839029914702275}
   - component: {fileID: 4711151955290684885}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Front_Part
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3612,7 +3612,7 @@ GameObject:
   - component: {fileID: 5270582871199435135}
   - component: {fileID: 7667906935820937665}
   - component: {fileID: 3274465372524955329}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: Front_Part_Logo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
