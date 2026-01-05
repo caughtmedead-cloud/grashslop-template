@@ -3130,7 +3130,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584340123263121711
+  _initializedTimestamp: -8584340085576067127
   NetworkObserver: {fileID: 0}
   _enablePrediction: 0
   _predictionType: 0
@@ -3196,11 +3196,8 @@ MonoBehaviour:
   _networkObjectCache: {fileID: -8147693711007459752}
   walkSpeed: 3
   sprintSpeed: 7
-  acceleration: 7
-  deceleration: 14
-  directionChangePenalty: 4
-  directionChangeThreshold: 90
-  allowSprintSliding: 1
+  enableAirControl: 1
+  airControlMultiplier: 0.2
   jumpHeight: 1.5
   timeToJumpApex: 0.5
   fallGravityMultiplier: 1.8
@@ -3373,15 +3370,15 @@ MonoBehaviour:
   characterController: {fileID: 6832522617745204246}
   walkAnimationSpeed: 2
   sprintAnimationSpeed: 6
-  animationTransitionSpeed: 8
+  animationTransitionSpeed: 10
   speedBlendCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 1
+      inSlope: 2
+      outSlope: 2
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -3389,7 +3386,7 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 1
+      inSlope: 0
       outSlope: 0
       tangentMode: 0
       weightedMode: 0

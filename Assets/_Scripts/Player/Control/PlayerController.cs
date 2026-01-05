@@ -7,13 +7,10 @@ public class PlayerController : NetworkBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float sprintSpeed = 7f;
-    [SerializeField] private float acceleration = 10f;
-    [SerializeField] private float deceleration = 15f;
-    
-    [Header("Direction Change Settings")]
-    [SerializeField] private float directionChangePenalty = 0.7f;
-    [SerializeField] private float directionChangeThreshold = 90f;
-    [SerializeField] private bool allowSprintSliding = true;
+
+    [Header("Air Control Settings")]
+    [SerializeField] private bool enableAirControl = true;
+    [SerializeField] [Range(0f, 1f)] private float airControlMultiplier = 0.2f;
     
     [Header("Jump Settings")]
     [SerializeField] private float jumpHeight = 1.5f;
@@ -38,6 +35,7 @@ public class PlayerController : NetworkBehaviour
 
     private Vector3 velocity;
     private Vector3 currentVelocity;
+    private Vector3 jumpStartVelocity;
     private bool isGrounded;
     private bool isSprinting = false;
     private bool jumpedThisFrame = false;
@@ -45,7 +43,6 @@ public class PlayerController : NetworkBehaviour
     private float jumpQueueTime = 0f;
     private float timeLeftGround = 0f;
     private bool wasInAir = false;
-    private bool isInSharpTurn = false;
     private float lastJumpTime = -999f;
     
     private float gravity;
@@ -180,7 +177,7 @@ public class PlayerController : NetworkBehaviour
     {
         Vector3 inputDirection = transform.right * moveInput.x + transform.forward * moveInput.y;
         inputDirection = Vector3.ClampMagnitude(inputDirection, 1f);
-
+        
         float targetSpeed = 0f;
         
         if (inputDirection.magnitude > 0.01f)
@@ -192,35 +189,23 @@ public class PlayerController : NetworkBehaviour
         {
             isSprinting = false;
         }
-
-        Vector3 targetVelocity = inputDirection * targetSpeed;
         
-        bool isSharpTurn = false;
-        if (currentVelocity.magnitude > walkSpeed * 0.5f && targetVelocity.magnitude > 0.1f)
+        if (isGrounded)
         {
-            float angle = Vector3.Angle(currentVelocity, targetVelocity);
-            if (angle > directionChangeThreshold)
-            {
-                isSharpTurn = true;
-            }
+            currentVelocity = inputDirection * targetSpeed;
         }
-        
-        float currentAccel = targetSpeed > currentVelocity.magnitude ? acceleration : deceleration;
-        
-        if (isSharpTurn && allowSprintSliding)
+        else if (enableAirControl)
         {
-            currentAccel *= directionChangePenalty;
+            currentVelocity = Vector3.Lerp(
+                currentVelocity,
+                inputDirection * targetSpeed,
+                airControlMultiplier * Time.deltaTime * 5f
+            );
         }
-        
-        isInSharpTurn = isSharpTurn;
-        
-        currentVelocity = Vector3.MoveTowards(
-            currentVelocity,
-            targetVelocity,
-            currentAccel * Time.deltaTime
-        );
-
-        characterController.Move(currentVelocity * Time.deltaTime);
+        else
+        {
+            currentVelocity = jumpStartVelocity;
+        }
 
         if (jumpInput)
         {
@@ -239,12 +224,14 @@ public class PlayerController : NetworkBehaviour
             velocity.y -= gravity * Time.deltaTime;
         }
 
-        characterController.Move(velocity * Time.deltaTime);
+        Vector3 totalMovement = currentVelocity + velocity;
+        characterController.Move(totalMovement * Time.deltaTime);
     }
 
     private void ApplyJumpVelocity()
     {
         velocity.y = jumpVelocity;
+        jumpStartVelocity = currentVelocity;
     }
 
     private void HandleMouseLook()
@@ -277,7 +264,6 @@ public class PlayerController : NetworkBehaviour
     public float WalkSpeed => walkSpeed;
     public float SprintSpeed => sprintSpeed;
     public bool IsSprinting => isSprinting;
-    public bool IsInSharpTurn => isInSharpTurn;
 
     public bool ConsumeJumpEvent()
     {

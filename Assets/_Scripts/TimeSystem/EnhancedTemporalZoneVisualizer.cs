@@ -3,7 +3,6 @@ using UnityEngine;
 #if UNITY_EDITOR
 using DrawXXL;
 using UnityEditor;
-#endif
 
 [ExecuteAlways]
 [DefaultExecutionOrder(31000)]
@@ -23,7 +22,6 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
 
     public override void DrawVisualizedObject()
     {
-#if UNITY_EDITOR
         if (zone == null)
             return;
 
@@ -40,10 +38,8 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
         }
 
         DrawDrawXXLShapes(col);
-#endif
     }
 
-#if UNITY_EDITOR
     public static bool GetGlobalTextVisibility()
     {
         return EditorPrefs.GetBool(GLOBAL_TEXT_VISIBILITY_KEY, false);
@@ -115,7 +111,6 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
         bool globalTextEnabled = GetGlobalTextVisibility();
         bool shouldShowText = globalTextEnabled || isSelected;
 
-        // Draw gradient rings FIRST (behind main shape) when zone is selected AND gradient enabled
         if (isSelected && zone.useIntensityGradient)
         {
             DrawGradientRings(col);
@@ -353,5 +348,5 @@ public class EnhancedTemporalZoneVisualizer : VisualizerParent
             hiddenByNearerObjects: false
         );
     }
-#endif
 }
+#endif

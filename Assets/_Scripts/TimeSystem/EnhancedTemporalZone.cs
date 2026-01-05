@@ -62,7 +62,9 @@ public class EnhancedTemporalZone : NetworkBehaviour
     private readonly List<TemporalStability> affectedPlayers = new List<TemporalStability>();
     private Collider activeCollider;
 
+#if UNITY_EDITOR
     private EnhancedTemporalZoneVisualizer visualizer;
+#endif
     
     public ZoneColliderType ColliderType => _colliderType;
     public float StabilityDrainRate => stabilityDrainRate;
@@ -115,11 +117,13 @@ public class EnhancedTemporalZone : NetworkBehaviour
 
     private void Start()
     {
+#if UNITY_EDITOR
         visualizer = GetComponent<EnhancedTemporalZoneVisualizer>();
         if (visualizer != null)
         {
             visualizer.zone = this;
         }
+#endif
     }
     
     private void Update()
@@ -205,11 +209,13 @@ public class EnhancedTemporalZone : NetworkBehaviour
         
         CacheActiveCollider();
         UpdateColliderSize();
-        
+
+#if UNITY_EDITOR
         if (visualizer != null)
         {
             visualizer.zone = this;
         }
+#endif
         
         if (GetComponent<NetworkObject>() == null)
         {
