@@ -3196,6 +3196,8 @@ MonoBehaviour:
   _networkObjectCache: {fileID: -8147693711007459752}
   walkSpeed: 3
   sprintSpeed: 7
+  groundAcceleration: 30
+  groundDeceleration: 30
   enableAirControl: 1
   airControlMultiplier: 0.2
   jumpHeight: 1.5
@@ -3367,6 +3369,7 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: -8147693711007459752}
   _networkObjectCache: {fileID: -8147693711007459752}
   animator: {fileID: 6710131643974204076}
+  networkAnimator: {fileID: 8473452973492326992}
   characterController: {fileID: 6832522617745204246}
   walkAnimationSpeed: 2
   sprintAnimationSpeed: 6

@@ -7,6 +7,8 @@ public class PlayerController : NetworkBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float sprintSpeed = 7f;
+    [SerializeField] private float groundAcceleration = 20f;
+    [SerializeField] private float groundDeceleration = 25f;
 
     [Header("Air Control Settings")]
     [SerializeField] private bool enableAirControl = true;
@@ -114,6 +116,9 @@ public class PlayerController : NetworkBehaviour
     {
         gravity = (2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2);
         jumpVelocity = (2 * jumpHeight) / timeToJumpApex;
+        
+        // Fix micro-movement stuttering
+        characterController.minMoveDistance = 0f;
     }
 
     private void Update()
@@ -190,15 +195,23 @@ public class PlayerController : NetworkBehaviour
             isSprinting = false;
         }
         
+        Vector3 targetVelocity = inputDirection * targetSpeed;
+        
         if (isGrounded)
         {
-            currentVelocity = inputDirection * targetSpeed;
+            float accelRate = (targetSpeed > 0.01f) ? groundAcceleration : groundDeceleration;
+            
+            currentVelocity = Vector3.MoveTowards(
+                currentVelocity,
+                targetVelocity,
+                accelRate * Time.deltaTime
+            );
         }
         else if (enableAirControl)
         {
             currentVelocity = Vector3.Lerp(
                 currentVelocity,
-                inputDirection * targetSpeed,
+                targetVelocity,
                 airControlMultiplier * Time.deltaTime * 5f
             );
         }
@@ -319,5 +332,21 @@ public class PlayerController : NetworkBehaviour
         }
 
         return !currentlyGrounded && (Time.time - timeLeftGround > 0.1f);
+    }
+
+    public Vector2 GetLocalVelocity()
+    {
+        Vector3 localVel = transform.InverseTransformDirection(currentVelocity);
+        return new Vector2(localVel.x, localVel.z);
+    }
+
+    public float GetVelocityX()
+    {
+        return transform.InverseTransformDirection(currentVelocity).x;
+    }
+
+    public float GetVelocityZ()
+    {
+        return transform.InverseTransformDirection(currentVelocity).z;
     }
 }

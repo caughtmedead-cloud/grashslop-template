@@ -1,10 +1,12 @@
 using UnityEngine;
 using FishNet.Object;
+using FishNet.Component.Animating;
 
 public class PlayerAnimator : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private Animator animator;
+    [SerializeField] private NetworkAnimator networkAnimator;
     [SerializeField] private CharacterController characterController;
 
     [Header("Animation Settings")]
@@ -26,8 +28,9 @@ public class PlayerAnimator : NetworkBehaviour
     private static readonly int jumpHash = Animator.StringToHash("Jump");
     private static readonly int isNearGroundHash = Animator.StringToHash("IsNearGround");
     private static readonly int inAirHash = Animator.StringToHash("InAir");
+    private static readonly int velocityXHash = Animator.StringToHash("VelocityX");
+    private static readonly int velocityZHash = Animator.StringToHash("VelocityZ");
 
-    private float currentBlendValue;
     private PlayerController playerController;
     private bool wasGrounded = true;
     private float lastJumpTriggerTime = -999f;
@@ -36,6 +39,9 @@ public class PlayerAnimator : NetworkBehaviour
     {
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
+        
+        if (networkAnimator == null)
+            networkAnimator = GetComponent<NetworkAnimator>();
 
         if (characterController == null)
             characterController = GetComponent<CharacterController>();
@@ -59,27 +65,17 @@ public class PlayerAnimator : NetworkBehaviour
 
     private void UpdateMovementAnimation()
     {
+        Vector2 localVelocity = playerController.GetLocalVelocity();
         float currentSpeed = playerController.GetCurrentSpeed();
         float walkSpeed = playerController.WalkSpeed;
         float sprintSpeed = playerController.SprintSpeed;
 
-        float targetBlendValue = currentSpeed;
-        
-        currentBlendValue = Mathf.MoveTowards(
-            currentBlendValue,
-            targetBlendValue,
-            animationTransitionSpeed * Time.deltaTime
-        );
-
-        if (currentBlendValue < 0.01f)
-        {
-            currentBlendValue = 0f;
-        }
-
-        animator.SetFloat(speedHash, currentBlendValue);
+        networkAnimator.Animator.SetFloat(velocityXHash, localVelocity.x);
+        networkAnimator.Animator.SetFloat(velocityZHash, localVelocity.y);
+        networkAnimator.Animator.SetFloat(speedHash, currentSpeed);
 
         float animatorSpeedMultiplier = CalculateAnimatorSpeedMultiplier(currentSpeed, walkSpeed, sprintSpeed);
-        animator.speed = animatorSpeedMultiplier;
+        networkAnimator.Animator.speed = animatorSpeedMultiplier;
     }
 
     private float CalculateAnimatorSpeedMultiplier(float currentSpeed, float walkSpeed, float sprintSpeed)
@@ -108,16 +104,16 @@ public class PlayerAnimator : NetworkBehaviour
         bool isNearGround = playerController.IsNearGround();
         bool inAir = playerController.IsInAir();
 
-        animator.SetBool(isGroundedHash, isGrounded);
-        animator.SetBool(isNearGroundHash, isNearGround);
-        animator.SetBool(inAirHash, inAir);
+        networkAnimator.Animator.SetBool(isGroundedHash, isGrounded);
+        networkAnimator.Animator.SetBool(isNearGroundHash, isNearGround);
+        networkAnimator.Animator.SetBool(inAirHash, inAir);
 
         if (!wasGrounded && isGrounded)
         {
             OnLanded();
             
             // Clear jump trigger on landing as safety measure
-            animator.ResetTrigger(jumpHash);
+            networkAnimator.ResetTrigger("Jump");
         }
 
         wasGrounded = isGrounded;
@@ -127,7 +123,7 @@ public class PlayerAnimator : NetworkBehaviour
     {
         if (playerController != null && playerController.ConsumeJumpEvent())
         {
-            animator.SetTrigger(jumpHash);
+            networkAnimator.SetTrigger("Jump");
             lastJumpTriggerTime = Time.time;
             
             if (showDebugInfo)
@@ -139,9 +135,9 @@ public class PlayerAnimator : NetworkBehaviour
         // Safety: Auto-reset jump trigger if it's been active too long
         if (Time.time - lastJumpTriggerTime > jumpTriggerTimeout)
         {
-            if (animator.GetBool(jumpHash))
+            if (networkAnimator.Animator.GetBool(jumpHash))
             {
-                animator.ResetTrigger(jumpHash);
+                networkAnimator.ResetTrigger("Jump");
                 
                 if (showDebugInfo)
                 {
@@ -161,14 +157,22 @@ public class PlayerAnimator : NetworkBehaviour
 
     private void LogDebugInfo()
     {
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo stateInfo = networkAnimator.Animator.GetCurrentAnimatorStateInfo(0);
         string stateName = GetStateName(stateInfo);
         float currentSpeed = playerController.GetCurrentSpeed();
         float velY = playerController.GetVerticalVelocity();
         bool grounded = characterController.isGrounded;
+        
+        Vector2 localVel = playerController.GetLocalVelocity();
+        
+        float animVelX = networkAnimator.Animator.GetFloat(velocityXHash);
+        float animVelZ = networkAnimator.Animator.GetFloat(velocityZHash);
+        float animSpeed = networkAnimator.Animator.GetFloat(speedHash);
 
-        string status = $"[{stateName}] Speed: {currentSpeed:F2} m/s | Blend: {currentBlendValue:F2} | AnimSpeed: {animator.speed:F2}x | VelY: {velY:F1} | ";
+        string status = $"[{stateName}] Speed: {currentSpeed:F2} m/s | AnimSpeed: {networkAnimator.Animator.speed:F2}x | VelY: {velY:F1} | ";
         status += grounded ? "Grounded" : "Airborne";
+        status += $"\nLocalVel: ({localVel.x:F2}, {localVel.y:F2})";
+        status += $"\nAnimParams: VelX={animVelX:F2}, VelZ={animVelZ:F2}, Speed={animSpeed:F2}";
 
         Debug.Log(status);
     }
