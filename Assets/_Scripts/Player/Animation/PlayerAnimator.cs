@@ -43,7 +43,7 @@ public class PlayerAnimator : NetworkBehaviour
         playerController = GetComponent<PlayerController>();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if (!IsOwner) return;
 

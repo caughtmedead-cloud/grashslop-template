@@ -3130,7 +3130,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584340160963401984
+  _initializedTimestamp: -8584340123263121711
   NetworkObserver: {fileID: 0}
   _enablePrediction: 0
   _predictionType: 0
@@ -3212,7 +3212,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   showGroundCheckDebug: 1
-  mouseSensitivity: 0.5
+  mouseSensitivity: 0.1
   maxLookAngle: 80
 --- !u!114 &1655560163177980045
 MonoBehaviour:
