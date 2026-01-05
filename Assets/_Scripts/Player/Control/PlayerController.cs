@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 
 public class PlayerController : NetworkBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float sprintSpeed = 7f;
+    [SerializeField] private float crouchSpeed = 1.5f;  // crouch movement speed
     [SerializeField] private float groundAcceleration = 20f;
     [SerializeField] private float groundDeceleration = 25f;
 
@@ -24,6 +26,13 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float fallGravityMultiplier = 1.8f;
     [SerializeField] private float jumpPhysicsDelay = 0.25f;
     [SerializeField] private float jumpCooldown = 0.2f;
+
+    [Header("Crouch Settings")]
+    [SerializeField] private bool enableCrouch = true;
+    [SerializeField] private bool toggleCrouch = false;
+    [SerializeField] private float crouchHeight = 0.9f;
+    [SerializeField] private float normalHeight = 1.8f;
+    [SerializeField] private float crouchTransitionSpeed = 8f;
 
     [Header("Ground Detection")]
     [SerializeField] private float groundCheckDistance = 4f;
@@ -45,8 +54,16 @@ public class PlayerController : NetworkBehaviour
     private Vector3 jumpStartVelocity;
     private bool isGrounded;
     private bool isSprinting = false;
+    private readonly SyncVar<bool> isCrouching = new SyncVar<bool>(
+        false,
+        new SyncTypeSettings(WritePermission.ServerOnly, ReadPermission.Observers)
+    );
     private bool jumpedThisFrame = false;
     private bool jumpQueued = false;
+    private bool crouchInput = false;
+    private bool crouchToggled = false;
+    private bool isCrouchJumpRequested = false;
+    private bool predictedCrouch = false;
     private float jumpQueueTime = 0f;
     private float timeLeftGround = 0f;
     private bool wasInAir = false;
@@ -124,6 +141,9 @@ public class PlayerController : NetworkBehaviour
         
         // Fix micro-movement stuttering
         characterController.minMoveDistance = 0f;
+        
+        // Hook SyncVar change
+        isCrouching.OnChange += OnCrouchChanged;
     }
 
     private void Update()
@@ -146,6 +166,18 @@ public class PlayerController : NetworkBehaviour
         lookInput = ApplyRadialDeadzone(rawLookInput, lookStickDeadzone);
         
         sprintInput = inputActions.Player.Sprint.IsPressed();
+        if (toggleCrouch)
+        {
+            if (inputActions.Player.Crouch.triggered)
+            {
+                crouchToggled = !crouchToggled;
+            }
+            crouchInput = crouchToggled;
+        }
+        else
+        {
+            crouchInput = inputActions.Player.Crouch.IsPressed();
+        }
     }
 
     private Vector2 ApplyRadialDeadzone(Vector2 input, float deadzone)
@@ -221,6 +253,35 @@ public class PlayerController : NetworkBehaviour
         
         Vector3 targetVelocity = inputDirection * targetSpeed;
         
+        // Handle crouch state transitions (network-authoritative)
+        UpdateCrouchState();
+
+        if (inputDirection.magnitude > 0.01f)
+        {
+            // Priority: Crouch > Sprint > Walk
+            if (EffectiveCrouch())
+            {
+                targetSpeed = crouchSpeed;
+                isSprinting = false;
+            }
+            else if (sprintInput)
+            {
+                targetSpeed = sprintSpeed;
+                isSprinting = true;
+            }
+            else
+            {
+                targetSpeed = walkSpeed;
+                isSprinting = false;
+            }
+        }
+        else
+        {
+            isSprinting = false;
+        }
+
+        targetVelocity = inputDirection * targetSpeed;
+
         if (isGrounded)
         {
             float accelRate = (targetSpeed > 0.01f) ? groundAcceleration : groundDeceleration;
@@ -246,6 +307,14 @@ public class PlayerController : NetworkBehaviour
 
         if (jumpInput)
         {
+            // If crouching, request a reduced crouch-jump and stand up
+            if (EffectiveCrouch())
+            {
+                isCrouchJumpRequested = true;
+                // Attempt to stand up before jump
+                StopCrouch();
+            }
+
             jumpedThisFrame = true;
             jumpQueued = true;
             jumpQueueTime = Time.time;
@@ -267,8 +336,176 @@ public class PlayerController : NetworkBehaviour
 
     private void ApplyJumpVelocity()
     {
-        velocity.y = jumpVelocity;
+        float appliedJumpVelocity = jumpVelocity;
+        if (isCrouchJumpRequested)
+        {
+            appliedJumpVelocity *= 0.5f;
+            isCrouchJumpRequested = false;
+        }
+
+        velocity.y = appliedJumpVelocity;
         jumpStartVelocity = currentVelocity;
+    }
+
+    private void UpdateCrouchState()
+    {
+        bool wantsToCrouch = crouchInput && enableCrouch;
+
+        // Can't crouch in air
+        if (!isGrounded && wantsToCrouch)
+        {
+            wantsToCrouch = false;
+        }
+
+        // CLIENT PREDICTION: Owner updates local state immediately and informs server
+        if (IsOwner)
+        {
+            // DEBUG: Log every frame to see what's happening
+            if (Time.frameCount % 30 == 0)  // Every 30 frames to avoid spam
+            {
+                Debug.Log($"[Crouch Debug] crouchInput={crouchInput}, wantsToCrouch={wantsToCrouch}, " +
+                          $"EffectiveCrouch={EffectiveCrouch()}, predictedCrouch={predictedCrouch}, " +
+                          $"syncedCrouch={isCrouching.Value}, toggleCrouch={toggleCrouch}, crouchToggled={crouchToggled}");
+            }
+
+            // Start crouch locally
+            if (wantsToCrouch && !EffectiveCrouch() && CanStartCrouch())
+            {
+                Debug.Log("[Crouch] Starting crouch");
+                predictedCrouch = true;
+                StartCrouch();
+                ServerSetCrouch(true);
+            }
+            // Stop crouch locally
+            else if (!wantsToCrouch && EffectiveCrouch())
+            {
+                Debug.Log($"[Crouch] Attempting to stop crouch. CanStandUp={CanStandUp()}");
+                if (CanStandUp())
+                {
+                    Debug.Log("[Crouch] Stopping crouch - SUCCESS");
+                    predictedCrouch = false;
+                    StopCrouch();
+                    ServerSetCrouch(false);
+                }
+                else
+                {
+                    Debug.LogWarning("[Crouch] Can't stand up - blocked by obstacle!");
+                }
+            }
+        }
+
+        // Smoothly transition height using effective state
+        float targetHeight = EffectiveCrouch() ? crouchHeight : normalHeight;
+        if (Mathf.Abs(characterController.height - targetHeight) > 0.01f)
+        {
+            characterController.height = Mathf.Lerp(
+                characterController.height,
+                targetHeight,
+                crouchTransitionSpeed * Time.deltaTime
+            );
+            characterController.center = new Vector3(0, characterController.height / 2f, 0);
+        }
+    }
+
+    private bool EffectiveCrouch()
+    {
+        // Owner sees prediction immediately, fall back to synced value otherwise
+        if (IsOwner)
+            return predictedCrouch || isCrouching.Value;
+        return isCrouching.Value;
+    }
+
+    private bool CanStartCrouch()
+    {
+        return isGrounded;
+    }
+
+    private void StartCrouch()
+    {
+        // Visual/gameplay effects only (prediction handled separately)
+        // Use SendMessage so we don't require a compile-time FootIK type
+        SendMessage("setActivateCrouchingBehaviour", true, SendMessageOptions.DontRequireReceiver);
+    }
+
+    private void StopCrouch()
+    {
+        SendMessage("setActivateCrouchingBehaviour", false, SendMessageOptions.DontRequireReceiver);
+    }
+
+    private bool CanStandUp()
+    {
+        // How much extra height we need when standing
+        float heightToGain = normalHeight - crouchHeight;
+
+        // Start from current top of capsule
+        Vector3 rayStart = transform.position + Vector3.up * characterController.height;
+
+        // Cast upward to see if we have clearance
+        bool hasObstacle = Physics.SphereCast(
+            rayStart,
+            characterController.radius * 0.9f,  // Slightly smaller to avoid edge cases
+            Vector3.up,
+            out RaycastHit hit,
+            heightToGain + 0.1f,  // Add small buffer
+            ~0,  // All layers
+            QueryTriggerInteraction.Ignore
+        );
+
+#if UNITY_EDITOR
+        Debug.DrawRay(rayStart, Vector3.up * (heightToGain + 0.1f), hasObstacle ? Color.red : Color.green, 0.1f);
+
+        if (hasObstacle && showGroundCheckDebug)
+        {
+            Debug.LogWarning($"[CanStandUp] Blocked by: {hit.collider.name} at {hit.point}");
+        }
+#endif
+
+        return !hasObstacle;
+    }
+
+    [ServerRpc]
+    private void ServerSetCrouch(bool crouch)
+    {
+        // Server validates and applies authoritative state
+        if (crouch)
+        {
+            if (CanStartCrouch())
+                isCrouching.Value = true;
+        }
+        else
+        {
+            if (CanStandUp())
+                isCrouching.Value = false;
+        }
+    }
+
+    private void OnCrouchChanged(bool previousValue, bool newValue, bool asServer)
+    {
+        // Reconcile predicted state and apply visuals on remote clients
+        if (!IsOwner)
+        {
+            if (newValue)
+                StartCrouch();
+            else
+                StopCrouch();
+        }
+        else
+        {
+            // Owner: if server corrected prediction, reconcile
+            if (predictedCrouch != newValue)
+            {
+                predictedCrouch = false;
+                if (newValue)
+                    StartCrouch();
+                else
+                    StopCrouch();
+            }
+            else
+            {
+                // prediction matched server; clear prediction
+                predictedCrouch = false;
+            }
+        }
     }
 
     private void HandleMouseLook()
@@ -409,4 +646,7 @@ public class PlayerController : NetworkBehaviour
         get => gamepadSensitivity; 
         set => gamepadSensitivity = Mathf.Clamp(value, 10f, 300f); 
     }
+
+    public bool IsCrouching => isCrouching.Value;
+    public float CrouchSpeed => crouchSpeed;
 }

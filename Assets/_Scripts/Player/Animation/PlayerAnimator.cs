@@ -14,7 +14,11 @@ public class PlayerAnimator : NetworkBehaviour
     [SerializeField] private float walkAnimationSpeed = 3f;
     [Tooltip("How far the sprint animation moves the character per second at 1x speed")]
     [SerializeField] private float sprintAnimationSpeed = 7f;
+    [Tooltip("How far the crouch animation moves the character per second at 1x speed")]
+    [SerializeField] private float crouchAnimationSpeed = 1.5f;
     [SerializeField] private float animationTransitionSpeed = 10f;
+    [Tooltip("How quickly velocity parameters smooth (higher = more responsive)")]
+    [SerializeField] private float velocitySmoothSpeed = 8f;
     [Tooltip("Controls how animation speed blends between walk and sprint. X = speed ratio (0=walk, 1=sprint), Y = blend amount")]
     [SerializeField] private AnimationCurve speedBlendCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [SerializeField] private bool showDebugInfo = false;
@@ -30,10 +34,12 @@ public class PlayerAnimator : NetworkBehaviour
     private static readonly int inAirHash = Animator.StringToHash("InAir");
     private static readonly int velocityXHash = Animator.StringToHash("VelocityX");
     private static readonly int velocityZHash = Animator.StringToHash("VelocityZ");
+    private static readonly int isCrouchingHash = Animator.StringToHash("IsCrouching");
 
     private PlayerController playerController;
     private bool wasGrounded = true;
     private float lastJumpTriggerTime = -999f;
+    private Vector2 smoothedVelocity = Vector2.zero;
 
     private void Awake()
     {
@@ -69,20 +75,48 @@ public class PlayerAnimator : NetworkBehaviour
         float currentSpeed = playerController.GetCurrentSpeed();
         float walkSpeed = playerController.WalkSpeed;
         float sprintSpeed = playerController.SprintSpeed;
+        float crouchSpeed = playerController.CrouchSpeed;
+        bool isCrouching = playerController.IsCrouching;
 
-        networkAnimator.Animator.SetFloat(velocityXHash, localVelocity.x);
-        networkAnimator.Animator.SetFloat(velocityZHash, localVelocity.y);
+        // SMOOTH velocity parameters to prevent instant animation snapping
+        smoothedVelocity = Vector2.Lerp(
+            smoothedVelocity,
+            localVelocity,
+            velocitySmoothSpeed * Time.deltaTime
+        );
+
+        // Use smoothed values for blend tree
+        networkAnimator.Animator.SetFloat(velocityXHash, smoothedVelocity.x);
+        networkAnimator.Animator.SetFloat(velocityZHash, smoothedVelocity.y);
         networkAnimator.Animator.SetFloat(speedHash, currentSpeed);
+        networkAnimator.Animator.SetBool(isCrouchingHash, isCrouching);
 
-        float animatorSpeedMultiplier = CalculateAnimatorSpeedMultiplier(currentSpeed, walkSpeed, sprintSpeed);
+        float animatorSpeedMultiplier = CalculateAnimatorSpeedMultiplier(
+            currentSpeed,
+            walkSpeed,
+            sprintSpeed,
+            crouchSpeed,
+            isCrouching
+        );
         networkAnimator.Animator.speed = animatorSpeedMultiplier;
     }
 
-    private float CalculateAnimatorSpeedMultiplier(float currentSpeed, float walkSpeed, float sprintSpeed)
+    private float CalculateAnimatorSpeedMultiplier(
+        float currentSpeed,
+        float walkSpeed,
+        float sprintSpeed,
+        float crouchSpeed,
+        bool isCrouching)
     {
         if (currentSpeed < 0.05f)
         {
             return 1f;
+        }
+
+        // If crouching, use crouch animation speed
+        if (isCrouching)
+        {
+            return currentSpeed / crouchAnimationSpeed;
         }
 
         // Calculate how far we are between walk and sprint speed (0 to 1)

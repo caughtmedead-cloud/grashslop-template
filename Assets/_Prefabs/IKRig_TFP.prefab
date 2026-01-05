@@ -317,7 +317,6 @@ Transform:
   m_Children:
   - {fileID: 6009223407971828513}
   - {fileID: 1019211916619856595}
-  - {fileID: 2756467984266742805}
   m_Father: {fileID: 6170824354466653392}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &781343517331205742
@@ -979,12 +978,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1921375575602194800}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.66289043, y: 1.3116637e-15, z: -1.5617295e-15, w: 0.7487165}
-  m_LocalPosition: {x: 0, y: 0.119674854, z: 0.115362}
+  m_LocalRotation: {x: 0.70710695, y: 1.4370459e-15, z: -1.4370449e-15, w: 0.70710665}
+  m_LocalPosition: {x: 0, y: 1.602, z: 0.09900001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1243364647933111012}
+  m_Father: {fileID: 6279403022981445435}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &3950675348639042319
 Camera:
@@ -3084,6 +3083,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2756467984266742805}
   - {fileID: 3420677028985917465}
   - {fileID: 2590007902733014682}
   - {fileID: 238123097275138854}
@@ -3130,7 +3130,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584340085576067127
+  _initializedTimestamp: -8584339992093552432
   NetworkObserver: {fileID: 0}
   _enablePrediction: 0
   _predictionType: 0
@@ -3196,6 +3196,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: -8147693711007459752}
   walkSpeed: 3
   sprintSpeed: 7
+  crouchSpeed: 1.5
   groundAcceleration: 30
   groundDeceleration: 30
   moveStickDeadzone: 0.05
@@ -3207,6 +3208,11 @@ MonoBehaviour:
   fallGravityMultiplier: 1.8
   jumpPhysicsDelay: 0
   jumpCooldown: 0.2
+  enableCrouch: 1
+  toggleCrouch: 1
+  crouchHeight: 0.9
+  normalHeight: 1.8
+  crouchTransitionSpeed: 8
   groundCheckDistance: 1
   minFallSpeedForLanding: 2
   groundLayer:
@@ -3376,7 +3382,9 @@ MonoBehaviour:
   characterController: {fileID: 6832522617745204246}
   walkAnimationSpeed: 2
   sprintAnimationSpeed: 6
+  crouchAnimationSpeed: 1.5
   animationTransitionSpeed: 10
+  velocitySmoothSpeed: 8
   speedBlendCurve:
     serializedVersion: 2
     m_Curve:
@@ -3445,7 +3453,9 @@ MonoBehaviour:
   m_resetToDefaultValuesSpeed: 1
   m_activateCrouchSpecificBehaviour: 0
   m_crouchCorrectionTolerance: 0
-  m_forceActivateCrouchingBehaviour: []
+  m_forceActivateCrouchingBehaviour:
+  - layer: 0
+    animatorState: Crouch Movement
   m_forceInvalidOnAnimatorStates: []
   m_globalCharacterYOffset: 0
   m_applyGlobalCharacterYOffsetToOtherIKsToo: 1
@@ -3467,18 +3477,18 @@ MonoBehaviour:
   m_antiDownwardsIntersectionStiffness: 50
   m_maxGroundAngleAtWhichTheGroundIsDetectedAsGround: 81
   m_maxGroundAngleTheFeetsCanAdaptTo: 79
-  m_minimumMovementThreshold: 0.003
+  m_minimumMovementThreshold: 0.002
   m_accountMinimumMovementThresholdForMovingGroundObjects: 1
   m_isGluedToGroundNormalizedThreshold: 0.7
   m_isGluedToGroundDistanceThreshold: 0.055
   m_onlyAdaptRotationWhenGluedToGround: 1
-  m_computeIkHintPositionStrategy: 1
+  m_computeIkHintPositionStrategy: 0
   m_bodyPlacementWeight: 1
   m_bodyStiffness: 8
   m_bodyPositionInterpolationMethod: 0
   m_bodyPositionMaxCorrection: 0.7
   m_bodyPositionMaxCorrectionTolerance: 0.05
-  m_increaseBodyPositionMaxCorrectionWithForwardFootDistance: 0
+  m_increaseBodyPositionMaxCorrectionWithForwardFootDistance: 0.035
   m_canBodyPositionMoveHigherThanGroundedPosition: 1
   m_bodyPositionOffset: 0
   m_checkGroundedDistance: 0.7
@@ -3493,10 +3503,10 @@ MonoBehaviour:
   m_shouldersCounteractSpineBending: 1
   m_ignoreVelocityDependency: 0
   m_relativeSpineRotationAxisAffectedBySlopeLeaning: 0
-  m_moveLeaningStrength: 0
+  m_moveLeaningStrength: 0.34
   m_moveLeaningKneelFactor: 0
   m_moveSpineLeaningStrength: 0
-  m_moveLeaningStiffness: 12
+  m_moveLeaningStiffness: 8
   m_moveLeaningIsStartStopPercentage: 0
   m_moveLeaningIsStartStopStartDurationStrength: 20
   m_moveLeaningIsStartStopStopDurationStrength: 15
