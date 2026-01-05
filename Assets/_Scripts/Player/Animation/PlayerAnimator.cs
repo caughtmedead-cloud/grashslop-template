@@ -13,7 +13,13 @@ public class PlayerAnimator : NetworkBehaviour
     [Tooltip("How far the sprint animation moves the character per second at 1x speed")]
     [SerializeField] private float sprintAnimationSpeed = 7f;
     [SerializeField] private float animationTransitionSpeed = 10f;
+    [Tooltip("Controls how animation speed blends between walk and sprint. X = speed ratio (0=walk, 1=sprint), Y = blend amount")]
+    [SerializeField] private AnimationCurve speedBlendCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [SerializeField] private bool showDebugInfo = false;
+
+    [Header("Jump Safety")]
+    [Tooltip("Time in seconds to auto-clear the jump trigger if not consumed")]
+    [SerializeField] private float jumpTriggerTimeout = 0.5f;
 
     private static readonly int speedHash = Animator.StringToHash("Speed");
     private static readonly int isGroundedHash = Animator.StringToHash("IsGrounded");
@@ -24,6 +30,7 @@ public class PlayerAnimator : NetworkBehaviour
     private float currentBlendValue;
     private PlayerController playerController;
     private bool wasGrounded = true;
+    private float lastJumpTriggerTime = -999f;
 
     private void Awake()
     {
@@ -82,14 +89,17 @@ public class PlayerAnimator : NetworkBehaviour
             return 1f;
         }
 
-        if (playerController.IsSprinting)
-        {
-            return currentSpeed / sprintAnimationSpeed;
-        }
-        else
-        {
-            return currentSpeed / walkAnimationSpeed;
-        }
+        // Calculate how far we are between walk and sprint speed (0 to 1)
+        float speedRatio = Mathf.InverseLerp(walkSpeed, sprintSpeed, currentSpeed);
+        speedRatio = Mathf.Clamp01(speedRatio);
+        
+        // Apply curve to blend ratio
+        float curveValue = speedBlendCurve.Evaluate(speedRatio);
+        
+        // Blend between walk and sprint animation speeds
+        float blendedAnimSpeed = Mathf.Lerp(walkAnimationSpeed, sprintAnimationSpeed, curveValue);
+        
+        return currentSpeed / blendedAnimSpeed;
     }
 
     private void UpdatePhysicsStates()
@@ -105,6 +115,9 @@ public class PlayerAnimator : NetworkBehaviour
         if (!wasGrounded && isGrounded)
         {
             OnLanded();
+            
+            // Clear jump trigger on landing as safety measure
+            animator.ResetTrigger(jumpHash);
         }
 
         wasGrounded = isGrounded;
@@ -115,10 +128,25 @@ public class PlayerAnimator : NetworkBehaviour
         if (playerController != null && playerController.ConsumeJumpEvent())
         {
             animator.SetTrigger(jumpHash);
+            lastJumpTriggerTime = Time.time;
             
             if (showDebugInfo)
             {
                 Debug.Log("[PlayerAnimator] Jump triggered");
+            }
+        }
+        
+        // Safety: Auto-reset jump trigger if it's been active too long
+        if (Time.time - lastJumpTriggerTime > jumpTriggerTimeout)
+        {
+            if (animator.GetBool(jumpHash))
+            {
+                animator.ResetTrigger(jumpHash);
+                
+                if (showDebugInfo)
+                {
+                    Debug.LogWarning("[PlayerAnimator] Jump trigger timeout - auto-reset!");
+                }
             }
         }
     }

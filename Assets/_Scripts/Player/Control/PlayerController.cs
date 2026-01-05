@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using FishNet.Object;
 
 public class PlayerController : NetworkBehaviour
@@ -19,6 +20,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float timeToJumpApex = 0.4f;
     [SerializeField] private float fallGravityMultiplier = 1.8f;
     [SerializeField] private float jumpPhysicsDelay = 0.25f;
+    [SerializeField] private float jumpCooldown = 0.2f;
 
     [Header("Ground Detection")]
     [SerializeField] private float groundCheckDistance = 4f;
@@ -32,6 +34,7 @@ public class PlayerController : NetworkBehaviour
 
     private CharacterController characterController;
     private Camera playerCamera;
+    private PlayerInputActions inputActions;
 
     private Vector3 velocity;
     private Vector3 currentVelocity;
@@ -43,16 +46,44 @@ public class PlayerController : NetworkBehaviour
     private float timeLeftGround = 0f;
     private bool wasInAir = false;
     private bool isInSharpTurn = false;
+    private float lastJumpTime = -999f;
     
     private float gravity;
     private float jumpVelocity;
     
     private float verticalRotation = 0f;
 
+    private Vector2 moveInput;
+    private Vector2 lookInput;
+    private bool sprintInput;
+    private bool jumpInput;
+
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
         playerCamera = GetComponentInChildren<Camera>();
+        
+        inputActions = new PlayerInputActions();
+    }
+
+    private void OnEnable()
+    {
+        if (inputActions != null)
+        {
+            inputActions.Player.Enable();
+            
+            inputActions.Player.Jump.performed += OnJumpPerformed;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (inputActions != null)
+        {
+            inputActions.Player.Jump.performed -= OnJumpPerformed;
+            
+            inputActions.Player.Disable();
+        }
     }
 
     public override void OnStartClient()
@@ -68,6 +99,8 @@ public class PlayerController : NetworkBehaviour
             {
                 playerCamera.enabled = true;
             }
+            
+            inputActions.Player.Enable();
         }
         else
         {
@@ -75,6 +108,8 @@ public class PlayerController : NetworkBehaviour
             {
                 playerCamera.enabled = false;
             }
+            
+            inputActions.Player.Disable();
         }
     }
 
@@ -88,10 +123,38 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        ReadInput();
         HandleGroundCheck();
         HandleJumpQueue();
         HandleMovement();
         HandleMouseLook();
+    }
+
+    private void ReadInput()
+    {
+        moveInput = inputActions.Player.Move.ReadValue<Vector2>();
+        lookInput = inputActions.Player.Look.ReadValue<Vector2>();
+        sprintInput = inputActions.Player.Sprint.IsPressed();
+    }
+
+    private void OnJumpPerformed(InputAction.CallbackContext context)
+    {
+        if (!IsOwner) return;
+        
+        // Cooldown check
+        if (Time.time - lastJumpTime < jumpCooldown)
+        {
+            return;
+        }
+        
+        // Only queue jump if grounded
+        if (!isGrounded)
+        {
+            return;
+        }
+        
+        jumpInput = true;
+        lastJumpTime = Time.time;
     }
 
     private void HandleGroundCheck()
@@ -115,12 +178,7 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleMovement()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        bool sprintInput = Input.GetKey(KeyCode.LeftShift);
-        bool jumpPressed = Input.GetButtonDown("Jump");
-
-        Vector3 inputDirection = transform.right * horizontal + transform.forward * vertical;
+        Vector3 inputDirection = transform.right * moveInput.x + transform.forward * moveInput.y;
         inputDirection = Vector3.ClampMagnitude(inputDirection, 1f);
 
         float targetSpeed = 0f;
@@ -137,7 +195,6 @@ public class PlayerController : NetworkBehaviour
 
         Vector3 targetVelocity = inputDirection * targetSpeed;
         
-        // Detect sharp direction changes while moving fast
         bool isSharpTurn = false;
         if (currentVelocity.magnitude > walkSpeed * 0.5f && targetVelocity.magnitude > 0.1f)
         {
@@ -150,7 +207,6 @@ public class PlayerController : NetworkBehaviour
         
         float currentAccel = targetSpeed > currentVelocity.magnitude ? acceleration : deceleration;
         
-        // Apply direction change penalty for sharp turns at high speed
         if (isSharpTurn && allowSprintSliding)
         {
             currentAccel *= directionChangePenalty;
@@ -166,11 +222,12 @@ public class PlayerController : NetworkBehaviour
 
         characterController.Move(currentVelocity * Time.deltaTime);
 
-        if (jumpPressed && isGrounded)
+        if (jumpInput)
         {
             jumpedThisFrame = true;
             jumpQueued = true;
             jumpQueueTime = Time.time;
+            jumpInput = false;
         }
 
         if (velocity.y < 0)
@@ -192,8 +249,8 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleMouseLook()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        float mouseX = lookInput.x * mouseSensitivity;
+        float mouseY = lookInput.y * mouseSensitivity;
 
         transform.Rotate(Vector3.up * mouseX);
 

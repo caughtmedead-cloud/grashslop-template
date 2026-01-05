@@ -3130,7 +3130,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584340222379895562
+  _initializedTimestamp: -8584340160963401984
   NetworkObserver: {fileID: 0}
   _enablePrediction: 0
   _predictionType: 0
@@ -3201,17 +3201,18 @@ MonoBehaviour:
   directionChangePenalty: 4
   directionChangeThreshold: 90
   allowSprintSliding: 1
-  jumpHeight: 2
+  jumpHeight: 1.5
   timeToJumpApex: 0.5
   fallGravityMultiplier: 1.8
   jumpPhysicsDelay: 0
+  jumpCooldown: 0.2
   groundCheckDistance: 1
   minFallSpeedForLanding: 2
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
   showGroundCheckDebug: 1
-  mouseSensitivity: 2
+  mouseSensitivity: 0.5
   maxLookAngle: 80
 --- !u!114 &1655560163177980045
 MonoBehaviour:
@@ -3371,9 +3372,34 @@ MonoBehaviour:
   animator: {fileID: 6710131643974204076}
   characterController: {fileID: 6832522617745204246}
   walkAnimationSpeed: 2
-  sprintAnimationSpeed: 5
+  sprintAnimationSpeed: 6
   animationTransitionSpeed: 8
+  speedBlendCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   showDebugInfo: 1
+  jumpTriggerTimeout: 0.5
 --- !u!114 &8473452973492326992
 MonoBehaviour:
   m_ObjectHideFlags: 0
