@@ -45,6 +45,9 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float gamepadSensitivity = 150f;
     [SerializeField] private float maxLookAngle = 80f;
 
+    [Header("Camera Settings")]
+    [SerializeField] private FirstPersonCamera firstPersonCamera;
+
     private CharacterController characterController;
     private Camera playerCamera;
     private PlayerInputActions inputActions;
@@ -72,17 +75,17 @@ public class PlayerController : NetworkBehaviour
     private float gravity;
     private float jumpVelocity;
     
-    private float verticalRotation = 0f;
-
     private Vector2 moveInput;
     private Vector2 lookInput;
     private bool sprintInput;
     private bool jumpInput;
+    private float verticalRotation = 0f;
 
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
         playerCamera = GetComponentInChildren<Camera>();
+        firstPersonCamera = GetComponent<FirstPersonCamera>();
         
         inputActions = new PlayerInputActions();
     }
@@ -511,28 +514,36 @@ public class PlayerController : NetworkBehaviour
     private void HandleMouseLook()
     {
         bool isGamepad = Gamepad.current != null && lookInput.sqrMagnitude > 0f;
-        
-        float lookX, lookY;
-        
-        if (isGamepad)
+
+        if (firstPersonCamera != null)
         {
-            lookX = lookInput.x * gamepadSensitivity * Time.deltaTime;
-            lookY = lookInput.y * gamepadSensitivity * Time.deltaTime;
+            // Pass sensitivity values from PlayerController to camera system
+            firstPersonCamera.HandleLookInput(lookInput, isGamepad, mouseSensitivity, gamepadSensitivity);
         }
         else
         {
-            lookX = lookInput.x * mouseSensitivity;
-            lookY = lookInput.y * mouseSensitivity;
-        }
+            // Fallback if no camera system
+            float lookX, lookY;
 
-        transform.Rotate(Vector3.up * lookX);
+            if (isGamepad)
+            {
+                lookX = lookInput.x * gamepadSensitivity * Time.deltaTime;
+                lookY = lookInput.y * gamepadSensitivity * Time.deltaTime;
+            }
+            else
+            {
+                lookX = lookInput.x * mouseSensitivity;
+                lookY = lookInput.y * mouseSensitivity;
+            }
 
-        verticalRotation -= lookY;
-        verticalRotation = Mathf.Clamp(verticalRotation, -maxLookAngle, maxLookAngle);
-        
-        if (playerCamera != null)
-        {
-            playerCamera.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+            transform.Rotate(Vector3.up * lookX);
+            verticalRotation -= lookY;
+            verticalRotation = Mathf.Clamp(verticalRotation, -maxLookAngle, maxLookAngle);
+
+            if (playerCamera != null)
+            {
+                playerCamera.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+            }
         }
     }
 
