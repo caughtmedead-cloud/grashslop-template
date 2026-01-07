@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
+using DG.Tweening;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -62,6 +63,7 @@ public class PlayerController : NetworkBehaviour
     private Vector3 jumpStartVelocity;
     private bool isGrounded;
     private bool isSprinting = false;
+    private bool wasGrounded = false;
     private readonly SyncVar<bool> isCrouching = new SyncVar<bool>(
         false,
         new SyncTypeSettings(WritePermission.ServerOnly, ReadPermission.Observers)
@@ -251,6 +253,14 @@ public class PlayerController : NetworkBehaviour
         {
             velocity.y = -5f;
         }
+
+        // Detect landing transition
+        if (!wasGrounded && isGrounded)
+        {
+            OnLanded();
+        }
+
+        wasGrounded = isGrounded;
     }
 
     private void HandleJumpQueue()
@@ -540,6 +550,21 @@ public class PlayerController : NetworkBehaviour
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+        }
+    }
+
+    // Triggered when landing is detected
+    private void OnLanded()
+    {
+        if (IsOwner && playerCamera != null)
+        {
+            // Quick camera punch on landing
+            playerCamera.transform.DOPunchRotation(
+                new Vector3(-2f, 0f, 0f), // Pitch down slightly
+                0.2f,                      // Duration
+                10,                        // Vibrato
+                1f                         // Elasticity
+            );
         }
     }
 
