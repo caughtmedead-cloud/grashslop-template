@@ -1,4 +1,3 @@
-// NetworkedLookAnimator.cs - FINAL VERSION
 using UnityEngine;
 using FishNet.Object;
 using FIMSpace.FLook;
@@ -20,20 +19,26 @@ public class NetworkedLookAnimator : NetworkBehaviour
         
         if (lookAnimator == null) return;
         
+        // CRITICAL: Enable for both owner and remote
         lookAnimator.enabled = true;
         
         if (IsOwner)
         {
-            // Owner: use the LookAt target from FirstPersonCamera
+            // Owner: Head follows camera's look target
             FirstPersonCamera fpsCam = GetComponent<FirstPersonCamera>();
             if (fpsCam != null && fpsCam.GetLookAtTarget() != null)
             {
-                lookAnimator.ObjectToFollow = fpsCam.GetLookAtTarget();
+                lookAnimator.ObjectToFollow = fpsCam.GetLookAtTarget().transform;
+                
+                // IMPORTANT: Set LookAnimator to NOT affect camera parent
+                // Only animate head/neck bones, not root
+                lookAnimator.BackBonesCount = 0; // Don't affect spine
+                lookAnimator.LookAnimatorAmount = 1f; // Full head tracking
             }
         }
         else
         {
-            // Remote: create and use remote look target (updated by PlayerLookSync)
+            // Remote: Create networked look target (updated by PlayerLookSync)
             GameObject targetObj = new GameObject("RemoteLookTarget");
             remoteLookTarget = targetObj.transform;
             remoteLookTarget.SetParent(transform);

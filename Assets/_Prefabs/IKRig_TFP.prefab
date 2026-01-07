@@ -3184,7 +3184,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584339190424207858
+  _initializedTimestamp: -8584338503307774152
   NetworkObserver: {fileID: 0}
   _enablePrediction: 0
   _predictionType: 0
@@ -3273,10 +3273,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   showGroundCheckDebug: 1
-  mouseSensitivity: 100
+  mouseSensitivity: 5
   gamepadSensitivity: 150
   maxLookAngle: 80
   firstPersonCamera: {fileID: 3166874489748539819}
+  enableLookDebug: 1
 --- !u!114 &1655560163177980045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3639,7 +3640,7 @@ MonoBehaviour:
   ParentalReferenceBone: {fileID: 0}
   DestroyMomentTargetOnMaxDistance: 1
   OverrideRotations: 0
-  BackBonesCount: 1
+  BackBonesCount: 2
   _preBackBonesCount: 0
   LookBones:
   - Transform: {fileID: 6009223407971828513}
@@ -3679,9 +3680,29 @@ MonoBehaviour:
     initLocalRot: {x: 0.060688373, y: -3.2523548e-18, z: 5.3487447e-17, w: 0.9981568}
     targetDelayPosition: {x: 0, y: 0, z: 0}
     animatedDelayPosition: {x: 0, y: 0, z: 0}
-    lookWeight: 0.71171874
+    lookWeight: 0.49296874
     lookWeightB: 1
-    motionWeight: 0.71171874
+    motionWeight: 0.49296874
+  - Transform: {fileID: 6170824354466653392}
+    animatedStaticRotation: {x: 0, y: 0, z: 0, w: 0}
+    targetStaticRotation: {x: 0, y: 0, z: 0, w: 0}
+    localStaticRotation: {x: 0, y: 0, z: 0, w: 0}
+    animatedTargetRotation: {x: 0, y: 0, z: 0, w: 0}
+    targetRotation: {x: 0, y: 0, z: 0, w: 0}
+    correctionOffset: {x: 0, y: 0, z: 0}
+    finalRotation: {x: 0, y: 0, z: 0, w: 0}
+    lastKeyframeRotation: {x: 0, y: 0, z: 0, w: 0}
+    lastFinalLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+    forward: {x: 0, y: 0, z: 1}
+    right: {x: 1, y: 0, z: 0}
+    up: {x: 0, y: 1, z: 0}
+    initLocalPos: {x: 3.5142728e-24, y: 0.10340431, z: 6.0928186e-11}
+    initLocalRot: {x: 0.000000005764233, y: 2.4454688e-29, z: 1.0587911e-22, w: 1}
+    targetDelayPosition: {x: 0, y: 0, z: 0}
+    animatedDelayPosition: {x: 0, y: 0, z: 0}
+    lookWeight: 0.39171878
+    lookWeightB: 1
+    motionWeight: 0.39171878
   NoTargetHeadStops: 0
   _editor_hideEyes: 0
   _editor_displayName: Look Animator 2
@@ -3829,10 +3850,12 @@ MonoBehaviour:
   _componentIndexCache: 9
   _addedNetworkObject: {fileID: -8147693711007459752}
   _networkObjectCache: {fileID: -8147693711007459752}
+  rootTransform: {fileID: 6279403022981445435}
+  cameraTransform: {fileID: 9190377433747502334}
   headBone: {fileID: 6009223407971828513}
-  playerCamera: {fileID: 3299376288368114052}
-  lookAtTarget: {fileID: 3231071275609051901}
   headOffset: {x: 0, y: 0.13, z: 0.01}
+  maxVerticalAngle: 80
+  lookAtTarget: {fileID: 1563177684224332229}
 --- !u!114 &8817975478013292757
 MonoBehaviour:
   m_ObjectHideFlags: 0

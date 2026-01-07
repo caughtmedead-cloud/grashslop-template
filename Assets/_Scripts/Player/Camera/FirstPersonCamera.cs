@@ -4,73 +4,62 @@ using FishNet.Object;
 public class FirstPersonCamera : NetworkBehaviour
 {
     [Header("References")]
+    [SerializeField] private Transform rootTransform;
+    [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform headBone;
-    [SerializeField] private Camera playerCamera;
-    [SerializeField] private Transform lookAtTarget;
-    
-    [Header("Position Following")]
-    [SerializeField] private Vector3 headOffset = new Vector3(0, 0, 0.08f);
-    
-    private Transform cameraTransform;
-    private Transform rootTransform;
+
+    [Header("Camera Settings")]
+    [SerializeField] private Vector3 headOffset = Vector3.zero;
+    [SerializeField] private float maxVerticalAngle = 80f;
+
+    [Header("Look At Target (Optional)")]
+    [SerializeField] private GameObject lookAtTarget;
+
     private float verticalRotation = 0f;
-    
+    private Vector3 defaultCameraLocalPosition;
+
     private void Awake()
     {
-        if (playerCamera == null)
-            playerCamera = GetComponentInChildren<Camera>();
-        
-        if (playerCamera != null)
-            cameraTransform = playerCamera.transform;
-        
-        rootTransform = transform;
-    }
-    
-    public override void OnStartClient()
-    {
-        base.OnStartClient();
-        
-        if (!IsOwner)
+        if (cameraTransform != null)
         {
-            if (playerCamera != null)
-                playerCamera.enabled = false;
-            enabled = false;
-            return;
-        }
-        
-        if (cameraTransform == null)
-        {
-            Debug.LogError("[FirstPersonCamera] Camera not found!");
-            enabled = false;
-            return;
+            defaultCameraLocalPosition = cameraTransform.localPosition;
         }
     }
-    
-    public void HandleLookInput(float deltaX, float deltaY)
+
+    private void Update()
     {
-        if (!IsOwner)
-            return;
+        if (!IsOwner || cameraTransform == null) return;
         
-        rootTransform.rotation *= Quaternion.Euler(0f, deltaX, 0f);
-        verticalRotation -= deltaY;
+        cameraTransform.localPosition = defaultCameraLocalPosition;
     }
-    
+
     private void LateUpdate()
     {
-        if (!IsOwner || headBone == null || cameraTransform == null)
-            return;
-        
+        if (!IsOwner || headBone == null || cameraTransform == null) return;
+
         Vector3 targetPosition = headBone.position + headBone.TransformDirection(headOffset);
         cameraTransform.position = targetPosition;
-        
+
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
-        
+
         if (lookAtTarget != null)
         {
-            lookAtTarget.position = cameraTransform.position + cameraTransform.forward * 5f;
+            lookAtTarget.transform.position = cameraTransform.position + cameraTransform.forward * 5f;
         }
     }
-    
-    public Transform GetCameraTransform() => cameraTransform;
-    public Transform GetLookAtTarget() => lookAtTarget;
+
+    public void HandleLookInput(float deltaX, float deltaY)
+    {
+        if (!IsOwner) return;
+
+        rootTransform.rotation *= Quaternion.Euler(0f, deltaX, 0f);
+
+        verticalRotation -= deltaY;
+        verticalRotation = Mathf.Clamp(verticalRotation, -maxVerticalAngle, maxVerticalAngle);
+    }
+
+    public GameObject GetLookAtTarget()
+    {
+        return lookAtTarget;
+    }
 }
