@@ -514,30 +514,21 @@ public class PlayerController : NetworkBehaviour
     private void HandleMouseLook()
     {
         bool isGamepad = Gamepad.current != null && lookInput.sqrMagnitude > 0f;
+        
+        // KINEMATION TECHNIQUE: Calculate rotation delta here, not in camera
+        float deltaX = lookInput.x * (isGamepad ? gamepadSensitivity * Time.deltaTime : mouseSensitivity);
+        float deltaY = lookInput.y * (isGamepad ? gamepadSensitivity * Time.deltaTime : mouseSensitivity);
 
         if (firstPersonCamera != null)
         {
-            // Pass sensitivity values from PlayerController to camera system
-            firstPersonCamera.HandleLookInput(lookInput, isGamepad, mouseSensitivity, gamepadSensitivity);
+            firstPersonCamera.HandleLookInput(deltaX, deltaY);
         }
         else
         {
-            // Fallback if no camera system
-            float lookX, lookY;
+            // Fallback: same as old working code
+            transform.Rotate(Vector3.up * deltaX);
 
-            if (isGamepad)
-            {
-                lookX = lookInput.x * gamepadSensitivity * Time.deltaTime;
-                lookY = lookInput.y * gamepadSensitivity * Time.deltaTime;
-            }
-            else
-            {
-                lookX = lookInput.x * mouseSensitivity;
-                lookY = lookInput.y * mouseSensitivity;
-            }
-
-            transform.Rotate(Vector3.up * lookX);
-            verticalRotation -= lookY;
+            verticalRotation -= deltaY;
             verticalRotation = Mathf.Clamp(verticalRotation, -maxLookAngle, maxLookAngle);
 
             if (playerCamera != null)

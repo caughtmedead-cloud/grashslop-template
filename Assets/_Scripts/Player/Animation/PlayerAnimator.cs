@@ -11,9 +11,9 @@ public class PlayerAnimator : NetworkBehaviour
 
     [Header("Animation Settings")]
     [Tooltip("How far the walk animation moves the character per second at 1x speed")]
-    [SerializeField] private float walkAnimationSpeed = 3f;
+    [SerializeField] private float walkAnimationSpeed = 2f;
     [Tooltip("How far the sprint animation moves the character per second at 1x speed")]
-    [SerializeField] private float sprintAnimationSpeed = 7f;
+    [SerializeField] private float sprintAnimationSpeed = 6f;
     [Tooltip("How far the crouch animation moves the character per second at 1x speed")]
     [SerializeField] private float crouchAnimationSpeed = 1.5f;
     [SerializeField] private float animationTransitionSpeed = 10f;
