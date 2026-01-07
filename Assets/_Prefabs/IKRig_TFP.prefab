@@ -3184,7 +3184,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584338503307774152
+  _initializedTimestamp: -8584338450962526458
   NetworkObserver: {fileID: 0}
   _enablePrediction: 0
   _predictionType: 0
@@ -3853,7 +3853,8 @@ MonoBehaviour:
   rootTransform: {fileID: 6279403022981445435}
   cameraTransform: {fileID: 9190377433747502334}
   headBone: {fileID: 6009223407971828513}
-  headOffset: {x: 0, y: 0.13, z: 0.01}
+  positionOffset: {x: 0, y: 0.18, z: -0.05}
+  mouseSensitivity: 2
   maxVerticalAngle: 80
   lookAtTarget: {fileID: 1563177684224332229}
 --- !u!114 &8817975478013292757

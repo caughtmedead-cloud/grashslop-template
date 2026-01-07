@@ -62,11 +62,6 @@ public class PlayerAnimator : NetworkBehaviour
         UpdateMovementAnimation();
         UpdatePhysicsStates();
         DetectJump();
-
-        if (showDebugInfo && Time.frameCount % 10 == 0)
-        {
-            LogDebugInfo();
-        }
     }
 
     private void UpdateMovementAnimation()
@@ -189,27 +184,6 @@ public class PlayerAnimator : NetworkBehaviour
         }
     }
 
-    private void LogDebugInfo()
-    {
-        AnimatorStateInfo stateInfo = networkAnimator.Animator.GetCurrentAnimatorStateInfo(0);
-        string stateName = GetStateName(stateInfo);
-        float currentSpeed = playerController.GetCurrentSpeed();
-        float velY = playerController.GetVerticalVelocity();
-        bool grounded = characterController.isGrounded;
-        
-        Vector2 localVel = playerController.GetLocalVelocity();
-        
-        float animVelX = networkAnimator.Animator.GetFloat(velocityXHash);
-        float animVelZ = networkAnimator.Animator.GetFloat(velocityZHash);
-        float animSpeed = networkAnimator.Animator.GetFloat(speedHash);
-
-        string status = $"[{stateName}] Speed: {currentSpeed:F2} m/s | AnimSpeed: {networkAnimator.Animator.speed:F2}x | VelY: {velY:F1} | ";
-        status += grounded ? "Grounded" : "Airborne";
-        status += $"\nLocalVel: ({localVel.x:F2}, {localVel.y:F2})";
-        status += $"\nAnimParams: VelX={animVelX:F2}, VelZ={animVelZ:F2}, Speed={animSpeed:F2}";
-
-        Debug.Log(status);
-    }
 
     private string GetStateName(AnimatorStateInfo stateInfo)
     {
