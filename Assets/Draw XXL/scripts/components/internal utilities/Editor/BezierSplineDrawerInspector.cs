@@ -809,7 +809,7 @@
         void DrawAnchorPointsCustomHandles_freeMoveSubHandle(int i, float size_ofAnchorPointsCustomHandle)
         {
             Start_handlesChangeCheck();
-            var fmh_812_318_639030035772463866 = Quaternion.identity; Vector3 pos_shiftedByFreeMoveHandle_inUnitsOfGlobalSpace = Handles.FreeMoveHandle(bezierSplineDrawer_unserializedMonoB.listOfControlPointTriplets[i].anchorPoint.controlID_ofCustomHandles_sphere, bezierSplineDrawer_unserializedMonoB.listOfControlPointTriplets[i].anchorPoint.GetPos_inUnitsOfGlobalSpace(), size_ofAnchorPointsCustomHandle, Vector3.one, Handles.SphereHandleCap);
+            var fmh_812_318_639033920460796983 = Quaternion.identity; Vector3 pos_shiftedByFreeMoveHandle_inUnitsOfGlobalSpace = Handles.FreeMoveHandle(bezierSplineDrawer_unserializedMonoB.listOfControlPointTriplets[i].anchorPoint.controlID_ofCustomHandles_sphere, bezierSplineDrawer_unserializedMonoB.listOfControlPointTriplets[i].anchorPoint.GetPos_inUnitsOfGlobalSpace(), size_ofAnchorPointsCustomHandle, Vector3.one, Handles.SphereHandleCap);
             bool hasChanged = End_handlesChangeCheck("Position of Bezier Point", i, true);
 
             if (hasChanged)
@@ -1180,7 +1180,7 @@
         void DrawHelperPointsCustomHandles_sphereHandle(int i, int controlID_ofHandle, InternalDXXL_BezierControlHelperSubPoint concernedHelperPoint, float handleSize)
         {
             Start_handlesChangeCheck();
-            var fmh_1183_188_639030035772485930 = Quaternion.identity; Vector3 posOfSphereHandle_afterDrag_shifedInsideCamPlane_inUnitsOfGlobalSpace = Handles.FreeMoveHandle(controlID_ofHandle, concernedHelperPoint.GetPos_inUnitsOfGlobalSpace(), handleSize, Vector3.one, Handles.SphereHandleCap);
+            var fmh_1183_188_639033920460814248 = Quaternion.identity; Vector3 posOfSphereHandle_afterDrag_shifedInsideCamPlane_inUnitsOfGlobalSpace = Handles.FreeMoveHandle(controlID_ofHandle, concernedHelperPoint.GetPos_inUnitsOfGlobalSpace(), handleSize, Vector3.one, Handles.SphereHandleCap);
             bool hasChanged = End_handlesChangeCheck("Position of Bezier Point", i, true);
 
             if (hasChanged)
