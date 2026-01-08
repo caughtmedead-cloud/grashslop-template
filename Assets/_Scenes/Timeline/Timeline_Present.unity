@@ -1277,9 +1277,37 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6875450235905506462, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 1b841f82180ace44f8034e91af2a2e50, type: 3}
+    - target: {fileID: 6875450235905506462, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
+      propertyPath: m_Convex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601103076798592097, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601103076798592099, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 8601103076798592105, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
       propertyPath: m_Name
       value: P_en_TrashBag_01_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601103076798592105, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601103076798592109, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601103076798592111, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8601103076798949449, guid: 6a5c0114cdb9e6842997547bae357512, type: 3}
       propertyPath: m_LocalPosition.x
